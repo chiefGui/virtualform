@@ -1,5 +1,5 @@
 {
-  "name": "@refocus/grid",
+  "name": "@virtualform/grid",
   "version": "0.0.1",
   "main": "src/index.ts",
   "license": "MIT",

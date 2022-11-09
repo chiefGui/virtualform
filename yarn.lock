@@ -516,21 +516,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@refocus/grid@*, @refocus/grid@workspace:packages/grid":
-  version: 0.0.0-use.local
-  resolution: "@refocus/grid@workspace:packages/grid"
-  dependencies:
-    eslint: ^7.23.0
-    eslint-config-next: 13.0.0
-    eslint-config-prettier: ^8.3.0
-    eslint-config-turbo: latest
-    eslint-plugin-react: 7.31.8
-    typescript: ^4.8.4
-  peerDependencies:
-    react: ^18.2.0
-  languageName: unknown
-  linkType: soft
-
 "@rushstack/eslint-patch@npm:^1.1.3":
   version: 1.2.0
   resolution: "@rushstack/eslint-patch@npm:1.2.0"
@@ -596,15 +581,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^17.0.11":
-  version: 17.0.18
-  resolution: "@types/react-dom@npm:17.0.18"
-  dependencies:
-    "@types/react": ^17
-  checksum: b74525b1a13a0e27fe20859ff7a7e8f7e4581fb9d45ed1b6447ad1534d86f813818353c39d0df2e28f9d2b9be2e3af1908c244b2214a979393d19f217665e614
-  languageName: node
-  linkType: hard
-
 "@types/react-dom@npm:^18.0.7":
   version: 18.0.8
   resolution: "@types/react-dom@npm:18.0.8"
@@ -622,17 +598,6 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: 231d658c45abdef044a716b4502774f1585d8336d73b2f5bd68f181acbfc874b7a457686ecd29b415b43ed0922c309bab7e2cf96832d188a3f4f1b02f2af760a
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^17, @types/react@npm:^17.0.37":
-  version: 17.0.52
-  resolution: "@types/react@npm:17.0.52"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: a51b98dd87838d161278fdf9dd78e6a4ff8c018f406d6647f77963e144fb52a8beee40c89fd0e7e840eaeaa8bd9fe2f34519410540b1a52d43a6f8b4d2fbce33
   languageName: node
   linkType: hard
 
@@ -704,6 +669,21 @@ __metadata:
   checksum: d36c59da7bf3b3c150c12cbe4b0331edc15253f59599ec3d8b873b2a3d9fc7a4fea11490c1b20d972afcdc9c842deb5ada527ea9c538aa7e87555699d9a59f24
   languageName: node
   linkType: hard
+
+"@virtualform/grid@*, @virtualform/grid@workspace:packages/grid":
+  version: 0.0.0-use.local
+  resolution: "@virtualform/grid@workspace:packages/grid"
+  dependencies:
+    eslint: ^7.23.0
+    eslint-config-next: 13.0.0
+    eslint-config-prettier: ^8.3.0
+    eslint-config-turbo: latest
+    eslint-plugin-react: 7.31.8
+    typescript: ^4.8.4
+  peerDependencies:
+    react: ^18.2.0
+  languageName: unknown
+  linkType: soft
 
 "abbrev@npm:^1.0.0":
   version: 1.1.1
@@ -1750,7 +1730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:7.32.0, eslint@npm:^7.23.0, eslint@npm:^7.32.0":
+"eslint@npm:7.32.0, eslint@npm:^7.23.0":
   version: 7.32.0
   resolution: "eslint@npm:7.32.0"
   dependencies:
@@ -3369,16 +3349,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"refocus@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "refocus@workspace:."
-  dependencies:
-    eslint-config-custom: "*"
-    prettier: latest
-    turbo: latest
-  languageName: unknown
-  linkType: soft
-
 "regenerator-runtime@npm:^0.13.10":
   version: 0.13.10
   resolution: "regenerator-runtime@npm:0.13.10"
@@ -3665,6 +3635,13 @@ __metadata:
   dependencies:
     minipass: ^3.1.1
   checksum: fb58f5e46b6923ae67b87ad5ef1c5ab6d427a17db0bead84570c2df3cd50b4ceb880ebdba2d60726588272890bae842a744e1ecce5bd2a2a582fccd5068309eb
+  languageName: node
+  linkType: hard
+
+"std@npm:0.1.x":
+  version: 0.1.40
+  resolution: "std@npm:0.1.40"
+  checksum: ecc79c56d9793d67f8ea2c1d61ea6e3ed1673e157610236ea549d1337f2cb3da4e99a184ed2dcd151524fd079b2387f49bc95d0e6cc5a9f65349d37bea72e370
   languageName: node
   linkType: hard
 
@@ -4013,7 +3990,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.5.2, typescript@npm:^4.5.3, typescript@npm:^4.7.4, typescript@npm:^4.8.4":
+"typescript@npm:^4.5.3, typescript@npm:^4.7.4, typescript@npm:^4.8.4":
   version: 4.8.4
   resolution: "typescript@npm:4.8.4"
   bin:
@@ -4023,7 +4000,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.5.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.5.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.5.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>":
   version: 4.8.4
   resolution: "typescript@patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=f456af"
   bin:
@@ -4033,19 +4010,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ui@*, ui@workspace:packages/ui":
-  version: 0.0.0-use.local
-  resolution: "ui@workspace:packages/ui"
+"ui@npm:*":
+  version: 0.2.4
+  resolution: "ui@npm:0.2.4"
   dependencies:
-    "@types/react": ^17.0.37
-    "@types/react-dom": ^17.0.11
-    eslint: ^7.32.0
-    eslint-config-custom: "*"
-    react: ^18.2.0
-    tsconfig: "*"
-    typescript: ^4.5.2
-  languageName: unknown
-  linkType: soft
+    std: 0.1.x
+  checksum: c79eafb255ab5fd2ed83cf898cc98bd5379ee1ae77576b9a1e52ff70fbfdc276d8084719e6071f2448269bcd6f24468971b376c87d0ae48348dd60fcffd60e12
+  languageName: node
+  linkType: hard
 
 "unbox-primitive@npm:^1.0.2":
   version: 1.0.2
@@ -4123,17 +4095,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"virtualform@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "virtualform@workspace:."
+  dependencies:
+    eslint-config-custom: "*"
+    prettier: latest
+    turbo: latest
+  languageName: unknown
+  linkType: soft
+
 "web@workspace:apps/web":
   version: 0.0.0-use.local
   resolution: "web@workspace:apps/web"
   dependencies:
     "@babel/core": ^7.0.0
-    "@refocus/grid": "*"
     "@superstate/core": ^0.1.0
     "@superstate/react": ^0.1.0
     "@types/node": ^17.0.12
     "@types/react": ^18.0.22
     "@types/react-dom": ^18.0.7
+    "@virtualform/grid": "*"
     autoprefixer: ^10.4.13
     eslint: 7.32.0
     eslint-config-custom: "*"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { useGrid } from '@refocus/grid'
+import { useGrid } from '@virtualform/grid'
 import { useSuperState } from '@superstate/react'
 
 import { BlurImage } from '../../lib/blur-image'
@@ -39,7 +39,6 @@ export default function Page() {
 
   useEffect(() => {
     const unsub = Playground.state.subscribe(() => {
-      console.log(Playground.placeholder)
       setItems(randomItems(Playground.state.now().itemsAmount))
     })
 
@@ -49,6 +48,22 @@ export default function Page() {
   }, [])
 
   useEffect(recompute, [containerPercentage])
+
+  // return (
+  //   <div style={{ ...style, width: '100vw', height: 600 }} {...parentProps}>
+  //     <div {...getWrapperProps()}>
+  //       {getRows().map((row) => {
+  //         return (
+  //           <div {...row.getProps()}>
+  //             {row.cols().map((col) => {
+  //               return <div {...col.getProps()}>Item {col.index}</div>
+  //             })}
+  //           </div>
+  //         )
+  //       })}
+  //     </div>
+  //   </div>
+  // )
 
   return (
     <div className='w-full h-full'>
@@ -68,7 +83,7 @@ export default function Page() {
             }
 
             return (
-              <div key={row.key} {...row.getProps()}>
+              <div className='h-[200px]' {...row.getProps()}>
                 {row.cols().map((col) => {
                   return (
                     <div key={col.key} {...col.getProps()}>

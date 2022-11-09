@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { useEventListener } from '@refocus/grid/src/use-event-listener'
+import { useEventListener } from '@virtualform/grid/src/use-event-listener'
 
 export function useAvailableSpace({
   ref,

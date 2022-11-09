@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html>
       <head>
-        <title>Refocus</title>
+        <title>Virtualform</title>
 
         <script
           src='https://kit.fontawesome.com/b4e298da1a.js'

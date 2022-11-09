@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@refocus/grid": "*",
     "@superstate/core": "^0.1.0",
     "@superstate/react": "^0.1.0",
+    "@virtualform/grid": "*",
     "next": "13.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -6,7 +6,6 @@ export function useGrid(input: IInput) {
   const { cols, rows, gap = 0, cells = 0, gutter = 0 } = input
 
   const parentRef = useRef<HTMLDivElement>(null)
-  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const rowsAmount = useRef(0)
   const colsPerRow = useRef(0)
@@ -47,8 +46,6 @@ export function useGrid(input: IInput) {
     //   throw new Error(`Tried to recompute grid but parentRef is null.`)
     // }
 
-    console.log(parentRef.current)
-
     // Recalculate the available width.
     const nextAvailableWidth = calcAvailableWidth(parentRef, gutter)
 
@@ -73,7 +70,6 @@ export function useGrid(input: IInput) {
   const getParentProps = useCallback(() => {
     return {
       ref: parentRef,
-
       style: {
         position: 'relative',
         overflowY: 'auto',
@@ -89,8 +85,6 @@ export function useGrid(input: IInput) {
     }
 
     return {
-      ref: wrapperRef,
-
       style: {
         width: '100%',
         position: 'absolute',
@@ -113,12 +107,13 @@ export function useGrid(input: IInput) {
       const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
 
       return {
-        key: rowIndex,
-
+        index: rowIndex,
         isVisible: rowsVisibility[rowIndex]?.[1] ?? false,
 
         getProps() {
           return {
+            key: rowIndex,
+
             style: {
               height: rows.height,
               width: '100%',
