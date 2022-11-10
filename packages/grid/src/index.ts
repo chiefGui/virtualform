@@ -11,11 +11,10 @@ export function useGrid(input: IInput) {
   const colsPerRow = useRef(0)
   const colWidthRef = useRef(0)
 
-  const [rowsVisibility, setRowsVisibility] = useState<{
-    [key: number]: [number, boolean]
-  }>({})
+  const [visibleRows, setVisibleRows] = useState<Record<number, number>>({})
+  const [visibleCells, setVisibleCells] = useState<ICell[]>([])
 
-  const computeRowsVisibility = useCallback(() => {
+  const computeVisibleRows = useCallback(() => {
     if (
       rowsAmount.current === Infinity ||
       rowsAmount.current === 0 ||
@@ -24,18 +23,47 @@ export function useGrid(input: IInput) {
       return
     }
 
-    const rowsVisibility: { [key: number]: [number, boolean] } = {}
+    const nextVisibleCells: ICell[] = []
 
-    let i = rowsAmount.current
+    let rowIndex = rowsAmount.current
 
-    while (i--) {
-      const rowTop = calcRowTop(i, rows.height, gap, gutter)
-      const isVisible = isRowVisible(rowTop, rows.height, parentRef.current)
+    while (rowIndex--) {
+      const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
 
-      rowsVisibility[i] = [rowTop, isVisible]
+      if (isRowVisible(rowTop, rows.height, parentRef.current)) {
+        let colsAtRow = colsPerRow.current
+
+        while (colsAtRow--) {
+          const cellIndex = rowIndex * colsPerRow.current + colsAtRow
+
+          const colLeft = calcColLeft(
+            colsAtRow,
+            colWidthRef.current,
+            gap,
+            gutter
+          )
+
+          nextVisibleCells.push({
+            index: cellIndex,
+
+            getProps() {
+              return {
+                key: cellIndex.toString(),
+
+                style: {
+                  position: 'absolute',
+                  width: colWidthRef.current,
+                  height: rows.height,
+                  transform: `translate(${colLeft}px, ${rowTop}px)`,
+                },
+              }
+            },
+          })
+        }
+      }
     }
 
-    setRowsVisibility((prev) => ({ ...prev, ...rowsVisibility }))
+    setVisibleCells(nextVisibleCells)
   }, [gap, gutter, rows.height])
 
   const recompute = useCallback(() => {
@@ -57,8 +85,8 @@ export function useGrid(input: IInput) {
     // Recompute the number of rows that can fit in the grid.
     rowsAmount.current = calcRowsAmount(colsPerRow.current, cells)
 
-    computeRowsVisibility()
-  }, [gap, gutter, cols.minmax, cells, computeRowsVisibility])
+    computeVisibleRows()
+  }, [gap, gutter, cols.minmax, cells, computeVisibleRows])
 
   const getParentProps = useCallback(() => {
     return {
@@ -81,9 +109,7 @@ export function useGrid(input: IInput) {
     return {
       style: {
         width: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
+        position: 'relative',
         height,
       } as React.CSSProperties,
     }
@@ -103,10 +129,10 @@ export function useGrid(input: IInput) {
          */
         index: rowIndex,
 
-        /**
-         * Whether the row is visible or not.
-         */
-        isVisible: rowsVisibility[rowIndex]?.[1] ?? false,
+        // /**
+        //  * Whether the row is visible or not.
+        //  */
+        // isVisible: visibleRows[rowIndex]?.[1] ?? false,
 
         /**
          * Returns an object with the necessary props to properly render the row,
@@ -177,7 +203,7 @@ export function useGrid(input: IInput) {
         },
       }
     })
-  }, [cells, gap, gutter, rows.height, rowsVisibility])
+  }, [cells, gap, gutter, rows.height, visibleRows])
 
   /**
    * Recompute on mount
@@ -200,17 +226,12 @@ export function useGrid(input: IInput) {
 
   useEffect(recompute, [cells, gap, gutter])
 
-  useEffect(computeRowsVisibility, [
-    gap,
-    gutter,
-    rows.height,
-    computeRowsVisibility,
-  ])
+  useEffect(computeVisibleRows, [gap, gutter, rows.height, computeVisibleRows])
 
   /**
    * Calc visible rows.
    */
-  useEventListener('scroll', computeRowsVisibility, parentRef)
+  useEventListener('scroll', computeVisibleRows, parentRef)
 
   useEventListener('resize', recompute)
 
@@ -239,6 +260,8 @@ export function useGrid(input: IInput) {
      * (the one spreading the props returned by `getWrapperProps`).
      */
     getRows,
+
+    cells: visibleCells,
 
     /**
      * A function that recomputes the grid and the positions
@@ -432,4 +455,9 @@ type IInput = {
    * @example 50
    */
   gutter?: number
+}
+
+type ICell = {
+  index: number
+  getProps: () => { key: string; style: React.CSSProperties }
 }
