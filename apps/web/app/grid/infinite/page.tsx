@@ -5,33 +5,69 @@ import { useEffect, useState } from 'react'
 import { useGrid } from '@virtualform/grid'
 import { useSuperState } from '@superstate/react'
 
-import { Pic } from '../pic'
-import { Playground } from '../../lib/playground'
-import { randomItems } from '../../lib/random-items'
-import { useAvailableSpace } from '../../lib/use-available-space'
+import { BlurImage } from '../../../lib/blur-image'
+import { Header } from '../../header'
+import { Playground } from '../../../lib/playground'
+import { randomItems } from '../../../lib/random-items'
+import { useAvailableSpace } from '../../../lib/use-available-space'
+
+let requests = 0
+let hasMore = true
+
+const fetchMore = async () => {
+  return new Promise<string[]>((resolve) => {
+    // if (requests >= 5 || !hasMore) {
+    //   hasMore = false
+
+    //   return resolve([])
+    // }
+
+    setTimeout(() => {
+      requests++
+
+      resolve(randomItems(100))
+    }, 1000)
+  })
+}
 
 export default function Page() {
   useSuperState(Playground.state)
 
-  const [items, setItems] = useState(
-    randomItems(Playground.state.now().itemsAmount)
-  )
+  const [items, setItems] = useState<string[]>([])
 
-  const { getParentProps, getWrapperProps, getRows, recompute, rowsAmount } =
-    useGrid({
-      cells: items.length,
+  async function request() {
+    const incomingItems = await fetchMore()
 
-      cols: {
-        minmax: [100, 100],
-      },
+    setItems((prev) => [...prev, ...incomingItems])
+  }
 
-      rows: {
-        height: 100,
-      },
+  useEffect(() => {
+    ;(async () => {
+      await request()
+    })()
+  }, [])
 
-      gap: Playground.gap,
-      gutter: Playground.gutter,
-    })
+  const {
+    getParentProps,
+    getWrapperProps,
+    getRows,
+    recompute,
+    rowsAmount,
+    onRow,
+  } = useGrid({
+    cells: items.length,
+
+    cols: {
+      minmax: [100, 100],
+    },
+
+    rows: {
+      height: 100,
+    },
+
+    gap: Playground.gap,
+    gutter: Playground.gutter,
+  })
 
   const { style, ...parentProps } = getParentProps()
   const { height } = useAvailableSpace({ ref: parentProps.ref })
@@ -51,6 +87,8 @@ export default function Page() {
 
   return (
     <div className='w-full h-full'>
+      <Header />
+
       <div
         style={{
           ...style,
@@ -97,9 +135,10 @@ export default function Page() {
                       )}
 
                       {row.isVisible && (
-                        <Pic
-                          indicator={col.cellIndex + 1}
+                        <BlurImage
+                          alt='Unsplash placeholder image'
                           src={items[col.cellIndex]}
+                          fill={true}
                         />
                       )}
                     </div>

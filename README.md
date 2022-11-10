@@ -2,7 +2,7 @@
 
 <div align="center">
 
-### An ultra-fast virtualization engine for React.
+### A headless, ultra-fast virtualization engine for React.
 
 [Quick Start](#-quick-start) · [API](#usegrid) · [Demo](https://refocus.vercel.app/grid) · [FAQ](#-faq)
 
@@ -194,7 +194,7 @@ const { ..., getRows } = useGrid({
 
 ### What is virtualization?
 
-Virtualization, or windowing, is the concept of "unloading" content that's not visible to the human's eye, hence making your application more performant.
+Virtualization, or windowing, is the concept of "unloading" content that's not visible to the human eye, hence making your application more performant.
 
 Imagine Instagram's feed: you can spend a day scrolling down and you don't feel any lags or glitches. That's because anything you don't see, thanks to virtualization, is freed from CPU computation.
 

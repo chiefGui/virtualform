@@ -26,26 +26,19 @@ export function useGrid(input: IInput) {
 
     const rowsVisibility: { [key: number]: [number, boolean] } = {}
 
-    for (let i = 0; i < rowsAmount.current; i++) {
-      const rowTop = calcRowTop(i, rows.height, gap, gutter)
+    let i = rowsAmount.current
 
-      rowsVisibility[i] = [
-        rowTop,
-        isRowVisible(rowTop, rows.height, parentRef.current),
-      ]
+    while (i--) {
+      const rowTop = calcRowTop(i, rows.height, gap, gutter)
+      const isVisible = isRowVisible(rowTop, rows.height, parentRef.current)
+
+      rowsVisibility[i] = [rowTop, isVisible]
     }
 
     setRowsVisibility((prev) => ({ ...prev, ...rowsVisibility }))
   }, [gap, gutter, rows.height])
 
-  /**
-   * An expensive task that recomputes all the maths.
-   */
   const recompute = useCallback(() => {
-    // if (!parentRef.current) {
-    //   throw new Error(`Tried to recompute grid but parentRef is null.`)
-    // }
-
     // Recalculate the available width.
     const nextAvailableWidth = calcAvailableWidth(parentRef, gutter)
 
@@ -70,6 +63,7 @@ export function useGrid(input: IInput) {
   const getParentProps = useCallback(() => {
     return {
       ref: parentRef,
+
       style: {
         position: 'relative',
         overflowY: 'auto',
@@ -95,9 +89,6 @@ export function useGrid(input: IInput) {
     }
   }, [gap, gutter, rows.height])
 
-  /**
-   * Returns an array of rows.
-   */
   const getRows = useCallback(() => {
     if (!isFinite(rowsAmount.current) || rowsAmount.current === 0) {
       return []
@@ -107,9 +98,20 @@ export function useGrid(input: IInput) {
       const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
 
       return {
+        /**
+         * The index of the row.
+         */
         index: rowIndex,
+
+        /**
+         * Whether the row is visible or not.
+         */
         isVisible: rowsVisibility[rowIndex]?.[1] ?? false,
 
+        /**
+         * Returns an object with the necessary props to properly render the row,
+         * such as its key, position, size, etc.
+         */
         getProps() {
           return {
             key: rowIndex,
@@ -123,6 +125,10 @@ export function useGrid(input: IInput) {
           }
         },
 
+        /**
+         * A function that returns an array containing the columns and their respective
+         * props to be rendered within a single row.
+         */
         cols() {
           const colsAtRowAmount = Math.min(
             colsPerRow.current,
@@ -138,12 +144,24 @@ export function useGrid(input: IInput) {
             )
 
             return {
-              key: `${rowIndex}-${colIndex}`,
+              /**
+               * The index of the column, relative to the row.
+               */
+              index: colIndex,
 
-              index: rowIndex * colsPerRow.current + colIndex,
+              /**
+               * The index of the cell, relative to the grid.
+               */
+              cellIndex: rowIndex * colsPerRow.current + colIndex,
 
+              /**
+               * Returns an object with the necessary props to properly render the column
+               * in your virtualized grid.
+               */
               getProps() {
                 return {
+                  key: `${rowIndex}-${colIndex}`,
+
                   style: {
                     position: 'absolute',
                     top: 0,
@@ -182,13 +200,6 @@ export function useGrid(input: IInput) {
 
   useEffect(recompute, [cells, gap, gutter])
 
-  /**
-   * Calc visible rows.
-   */
-  useEventListener('scroll', computeRowsVisibility, parentRef)
-
-  useEventListener('resize', recompute)
-
   useEffect(computeRowsVisibility, [
     gap,
     gutter,
@@ -196,7 +207,72 @@ export function useGrid(input: IInput) {
     computeRowsVisibility,
   ])
 
-  return { getParentProps, getWrapperProps, getRows, recompute }
+  /**
+   * Calc visible rows.
+   */
+  useEventListener('scroll', computeRowsVisibility, parentRef)
+
+  useEventListener('resize', recompute)
+
+  return {
+    /**
+     * A function that returns an object with the necessary props for the
+     * firstmost parent of the virtualized grid.
+     *
+     * The wrapper goes inside the parent element.
+     */
+    getParentProps,
+
+    /**
+     * A function that returns an object with the necessary props for the
+     * wrapper element to render properly.
+     *
+     * The element spreading these props must be within the parent element
+     * (the one spreading the props returned by `getParentProps`).
+     */
+    getWrapperProps,
+
+    /**
+     * A function that returns an array of rows.
+     *
+     * These rows must be rendered within the wrapper element.
+     * (the one spreading the props returned by `getWrapperProps`).
+     */
+    getRows,
+
+    /**
+     * A function that recomputes the grid and the positions
+     * of the cells.
+     *
+     * You usually want to call this function when you want your virtualized grid
+     * to re-render after a change in the number of cells, the gap, the gutter, etc.
+     *
+     * This is quite an expensive task, so use it wisely.
+     */
+    recompute,
+
+    /**
+     * The current number of rows in the grid, regardless of whether they
+     * are visible or not.
+     */
+    get rowsAmount() {
+      return rowsAmount.current
+    },
+
+    /**
+     * The current number of columns per row in the grid.
+     */
+    get colsPerRow() {
+      return colsPerRow.current
+    },
+
+    /**
+     * The current width of each column/cell.
+     */
+    get colWidth() {
+      return colWidthRef.current
+    },
+  }
 }
 
 function calcAvailableWidth(
@@ -297,17 +373,63 @@ function isRowVisible(
 }
 
 type IInput = {
+  /**
+   * The total number of cells in the grid.
+   *
+   * This is necessary so Virtualform can calculate the number of rows
+   * and reserve enough space for them.
+   *
+   * @example 100
+   */
   cells: number
-  cols: { minmax: [number, number] }
-  rows: { height: number }
 
   /**
-   * The amount of space between each column and row.
+   * Properties related to the columns of the grid.
+   */
+  cols: {
+    /**
+     * A tuple containing, respectively, the minimum and maximum width of each column.
+     * Useful for responsiveness and behaves similar to CSS Grid.
+     *
+     * A column won't ever be greater than the maximum size and won't ever be smaller
+     * than the minimum size.
+     *
+     * If the two numbers are the same, Virtualform will do its best to be as accurate
+     * as possible.
+     *
+     * @example [100, 100]
+     */
+    minmax: [number, number]
+  }
+
+  /**
+   * Properties related to the rows of the grid.
+   */
+  rows: {
+    /**
+     * The height of each row. Each and every cell will have its height
+     * as the same as the height of the row.
+     *
+     * @example 100
+     */
+    height: number
+  }
+
+  /**
+   * The amount of space between each cell, vertically and horizontally.
+   * This won't create breathing space around the grid. If you want that,
+   * use the `gutter` property.
+   *
+   * @default 0
+   * @example 10
    */
   gap?: number
 
   /**
    * The amount of whitespace around the grid.
+   *
+   * @default 0
+   * @example 50
    */
   gutter?: number
 }
