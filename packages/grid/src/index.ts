@@ -11,10 +11,9 @@ export function useGrid(input: IInput) {
   const colsPerRow = useRef(0)
   const colWidthRef = useRef(0)
 
-  const [visibleRows, setVisibleRows] = useState<Record<number, number>>({})
   const [visibleCells, setVisibleCells] = useState<ICell[]>([])
 
-  const computeVisibleRows = useCallback(() => {
+  const computeVisibleCells = useCallback(() => {
     if (
       rowsAmount.current === Infinity ||
       rowsAmount.current === 0 ||
@@ -31,7 +30,10 @@ export function useGrid(input: IInput) {
       const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
 
       if (isRowVisible(rowTop, rows.height, parentRef.current)) {
-        let colsAtRow = colsPerRow.current
+        let colsAtRow =
+          rowIndex === rowsAmount.current - 1
+            ? cells % colsPerRow.current
+            : colsPerRow.current
 
         while (colsAtRow--) {
           const cellIndex = rowIndex * colsPerRow.current + colsAtRow
@@ -64,7 +66,7 @@ export function useGrid(input: IInput) {
     }
 
     setVisibleCells(nextVisibleCells)
-  }, [gap, gutter, rows.height])
+  }, [gap, gutter, rows.height, cells])
 
   const recompute = useCallback(() => {
     // Recalculate the available width.
@@ -85,8 +87,8 @@ export function useGrid(input: IInput) {
     // Recompute the number of rows that can fit in the grid.
     rowsAmount.current = calcRowsAmount(colsPerRow.current, cells)
 
-    computeVisibleRows()
-  }, [gap, gutter, cols.minmax, cells, computeVisibleRows])
+    computeVisibleCells()
+  }, [gap, gutter, cols.minmax, cells, computeVisibleCells])
 
   const getParentProps = useCallback(() => {
     return {
@@ -115,96 +117,6 @@ export function useGrid(input: IInput) {
     }
   }, [gap, gutter, rows.height])
 
-  const getRows = useCallback(() => {
-    if (!isFinite(rowsAmount.current) || rowsAmount.current === 0) {
-      return []
-    }
-
-    return Array.from({ length: rowsAmount.current }, (_, rowIndex) => {
-      const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
-
-      return {
-        /**
-         * The index of the row.
-         */
-        index: rowIndex,
-
-        // /**
-        //  * Whether the row is visible or not.
-        //  */
-        // isVisible: visibleRows[rowIndex]?.[1] ?? false,
-
-        /**
-         * Returns an object with the necessary props to properly render the row,
-         * such as its key, position, size, etc.
-         */
-        getProps() {
-          return {
-            key: rowIndex,
-
-            style: {
-              height: rows.height,
-              width: '100%',
-              position: 'absolute',
-              transform: `translateY(${rowTop}px)`,
-            } as React.CSSProperties,
-          }
-        },
-
-        /**
-         * A function that returns an array containing the columns and their respective
-         * props to be rendered within a single row.
-         */
-        cols() {
-          const colsAtRowAmount = Math.min(
-            colsPerRow.current,
-            cells - rowIndex * colsPerRow.current
-          )
-
-          return Array.from({ length: colsAtRowAmount }, (_, colIndex) => {
-            const colLeft = calcColLeft(
-              colIndex,
-              colWidthRef.current,
-              gap,
-              gutter
-            )
-
-            return {
-              /**
-               * The index of the column, relative to the row.
-               */
-              index: colIndex,
-
-              /**
-               * The index of the cell, relative to the grid.
-               */
-              cellIndex: rowIndex * colsPerRow.current + colIndex,
-
-              /**
-               * Returns an object with the necessary props to properly render the column
-               * in your virtualized grid.
-               */
-              getProps() {
-                return {
-                  key: `${rowIndex}-${colIndex}`,
-
-                  style: {
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: colWidthRef.current,
-                    height: '100%',
-                    transform: `translateX(${colLeft}px)`,
-                  } as React.CSSProperties,
-                }
-              },
-            }
-          })
-        },
-      }
-    })
-  }, [cells, gap, gutter, rows.height, visibleRows])
-
   /**
    * Recompute on mount
    */
@@ -226,12 +138,17 @@ export function useGrid(input: IInput) {
 
   useEffect(recompute, [cells, gap, gutter])
 
-  useEffect(computeVisibleRows, [gap, gutter, rows.height, computeVisibleRows])
+  useEffect(computeVisibleCells, [
+    gap,
+    gutter,
+    rows.height,
+    computeVisibleCells,
+  ])
 
   /**
    * Calc visible rows.
    */
-  useEventListener('scroll', computeVisibleRows, parentRef)
+  useEventListener('scroll', computeVisibleCells, parentRef)
 
   useEventListener('resize', recompute)
 
@@ -254,13 +171,8 @@ export function useGrid(input: IInput) {
     getWrapperProps,
 
     /**
-     * A function that returns an array of rows.
-     *
-     * These rows must be rendered within the wrapper element.
-     * (the one spreading the props returned by `getWrapperProps`).
+     * Returns the visible cells of the grid.
      */
-    getRows,
-
     cells: visibleCells,
 
     /**
