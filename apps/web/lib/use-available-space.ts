@@ -7,18 +7,17 @@ export function useAvailableSpace({
 }: {
   ref: React.RefObject<HTMLElement>
 }) {
-  const [availableSpace, setAvailableSpace] = useState({ width: 0, height: 0 })
+  const [availableSpace, setAvailableSpace] = useState({
+    width: 0,
+    height: 0,
+  })
 
   const updateAvailableSpace = useCallback(() => {
     if (ref.current) {
       const { x, y } = ref.current.getBoundingClientRect()
 
-      const height = window.innerHeight - y
-
-      ref.current.style.height = `${height}px`
-
       setAvailableSpace({
-        width: window.innerWidth - x * 2,
+        width: window.innerWidth - x,
         height: window.innerHeight - y,
       })
     }

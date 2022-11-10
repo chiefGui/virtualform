@@ -1,7 +1,5 @@
 import '../styles/main.css'
 
-import { Sidebar } from './sidebar'
-
 export default function RootLayout({
   children,
 }: {
@@ -21,8 +19,6 @@ export default function RootLayout({
 
       <body>
         <div className='flex'>
-          <Sidebar />
-
           <main className='w-full'>{children}</main>
         </div>
       </body>

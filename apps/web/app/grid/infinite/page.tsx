@@ -1,28 +1,94 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 
 import { useGrid } from '@virtualform/grid'
 import { useSuperState } from '@superstate/react'
 
-import { InputSelect } from '../../lib'
-import { Pic } from '../pic'
-import { Playground } from '../../lib/playground'
-import { randomItems } from '../../lib/random-items'
-import { SidebarLayout } from '../sidebar-layout'
+import { InputSelect } from '../../../lib'
+import { Pic } from '../../pic'
+import { Playground } from '../../../lib/playground'
+import { randomItems } from '../../../lib/random-items'
+import { SidebarLayout } from '../../sidebar-layout'
+
+const api = randomItems(1000)
+
+const fetch = (page: number) => {
+  return new Promise<string[]>((resolve) => {
+    setTimeout(() => {
+      const result = api.slice(page * 100, (page + 1) * 100)
+
+      resolve(result)
+    }, 1000)
+  })
+}
+
+const useQuery = () => {
+  const [isLoading, setIsLoading] = useState(true)
+  const [data, setData] = useState<string[]>([])
+
+  const currentPage = useRef(0)
+  const hasMoreRef = useRef(true)
+
+  useEffect(() => {
+    if (!hasMoreRef.current) return
+    ;(async () => {
+      await methods.fetchMore()
+    })()
+  }, [])
+
+  const methods = {
+    async fetchMore() {
+      if (!hasMoreRef.current) return
+
+      setIsLoading(true)
+
+      if (!hasMoreRef.current) {
+        setIsLoading(false)
+        return
+      }
+
+      const result = await fetch(currentPage.current)
+
+      setIsLoading(false)
+
+      if (result.length === 0) {
+        hasMoreRef.current = false
+        return
+      }
+
+      currentPage.current++
+
+      setData((prev) => [...prev, ...result])
+    },
+  }
+
+  return {
+    isLoading,
+    data,
+    hasMore: hasMoreRef.current,
+    ...methods,
+  }
+}
 
 export default function Page() {
   useSuperState(Playground.state)
 
-  const [items, setItems] = useState(
-    randomItems(Playground.state.now().itemsAmount)
-  )
+  const { fetchMore, isLoading, data, hasMore } = useQuery()
 
-  const { getParentProps, getWrapperProps, cells, recompute } = useGrid({
+  const {
+    getParentProps,
+    getWrapperProps,
+    cells,
+    recompute,
+    rowsAmount,
+    visibleRows,
+  } = useGrid({
     cells: {
-      amount: items.length,
+      amount: data.length,
       width: [100, 100],
       height: 100,
     },
@@ -32,25 +98,34 @@ export default function Page() {
   })
 
   useEffect(() => {
-    const unsub = Playground.state.subscribe(() => {
-      setItems(randomItems(Playground.state.now().itemsAmount))
-    })
-
-    return () => {
-      unsub()
+    if (visibleRows.includes(rowsAmount - 1) && !isLoading && hasMore) {
+      fetchMore()
     }
-  }, [])
+  }, [visibleRows, rowsAmount, isLoading, hasMore])
 
   return (
-    <div className='w-full h-full flex'>
+    <div className='w-full h-full flex relative'>
       <Sidebar />
 
       <div className='w-full h-screen' {...getParentProps()}>
+        <AnimatePresence initial={false}>
+          {isLoading && (
+            <motion.div
+              initial={{ y: 0, opacity: 0 }}
+              animate={{ y: -20, opacity: 1 }}
+              exit={{ y: 10, opacity: 0 }}
+              transition={{ delay: 0.2 }}
+              className='fixed left-1/2 bottom-0 h-fit text-center p-4 px-8 bg-white text-black z-50 rounded-3xl shadow-xl font-bold'>
+              Loading more results...
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div {...getWrapperProps()}>
           {cells.map((cell) => {
             return (
               <div {...cell.getProps()} className='group hover:z-50 z-0'>
-                <Pic indicator={cell.index + 1} src={items[cell.index]} />
+                <Pic indicator={cell.index + 1} src={data[cell.index]} />
               </div>
             )
           })}
@@ -65,50 +140,19 @@ const Sidebar = () => {
     <SidebarLayout>
       <nav className='p-8 pt-0'>
         <ul className='flex items-center gap-4'>
-          <li className='bg-white h-8 flex items-center gap-2 text-xs px-4 rounded-lg text-black select-none'>
-            Simple
-          </li>
-
-          <Link href='/grid/infinite'>
+          <Link href='/grid'>
             <li className='border-gray-600 border border-solid text-xs rounded-lg h-8 px-4 flex items-center text-gray-300 cursor-pointer hover:border-white hover:text-white transition-all duration-75'>
-              Infinite Loading
+              Simple
             </li>
           </Link>
+
+          <li className='bg-white h-8 flex items-center gap-2 text-xs px-4 rounded-lg text-black select-none'>
+            Infinite Loading
+          </li>
         </ul>
       </nav>
 
       <div className='p-8 pt-0 flex flex-col gap-6'>
-        <div className='flex gap-2 flex-col'>
-          <header className='flex flex-col gap-0.5'>
-            <strong>Amount of items</strong>
-
-            <small className='text-gray-400'>
-              Adjust the amount of items the grid has to render.
-            </small>
-          </header>
-
-          <div>
-            <InputSelect
-              onChange={(e) => {
-                Playground.itemsAmount = Number(e.target.value)
-              }}>
-              <option value={1000} selected={Playground.itemsAmount === 1000}>
-                1K
-              </option>
-
-              <option value={10000} selected={Playground.itemsAmount === 10000}>
-                10K
-              </option>
-
-              <option
-                value={100000}
-                selected={Playground.itemsAmount === 100000}>
-                100K
-              </option>
-            </InputSelect>
-          </div>
-        </div>
-
         <div className='flex gap-2 flex-col'>
           <header className='flex flex-col gap-0.5'>
             <strong>Gutter</strong>

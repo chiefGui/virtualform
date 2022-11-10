@@ -3,13 +3,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from './use-event-listener'
 
 export function useGrid(input: IInput) {
-  const { cols, rows, gap = 0, cells = 0, gutter = 0 } = input
+  const { cells, gap = 0, gutter = 0 } = input
 
   const parentRef = useRef<HTMLDivElement>(null)
 
   const rowsAmount = useRef(0)
   const colsPerRow = useRef(0)
   const colWidthRef = useRef(0)
+  const visibleRows = useRef<number[]>([])
 
   const [visibleCells, setVisibleCells] = useState<ICell[]>([])
 
@@ -22,17 +23,20 @@ export function useGrid(input: IInput) {
       return
     }
 
+    visibleRows.current = []
     const nextVisibleCells: ICell[] = []
 
     let rowIndex = rowsAmount.current
 
     while (rowIndex--) {
-      const rowTop = calcRowTop(rowIndex, rows.height, gap, gutter)
+      const rowTop = calcRowTop(rowIndex, cells.height, gap, gutter)
 
-      if (isRowVisible(rowTop, rows.height, parentRef.current)) {
+      if (isRowVisible(rowTop, cells.height, parentRef.current)) {
+        visibleRows.current = [...visibleRows.current, rowIndex]
+
         let colsAtRow =
           rowIndex === rowsAmount.current - 1
-            ? cells % colsPerRow.current
+            ? cells.amount % colsPerRow.current
             : colsPerRow.current
 
         while (colsAtRow--) {
@@ -55,7 +59,7 @@ export function useGrid(input: IInput) {
                 style: {
                   position: 'absolute',
                   width: colWidthRef.current,
-                  height: rows.height,
+                  height: cells.height,
                   transform: `translate(${colLeft}px, ${rowTop}px)`,
                 },
               }
@@ -66,7 +70,7 @@ export function useGrid(input: IInput) {
     }
 
     setVisibleCells(nextVisibleCells)
-  }, [gap, gutter, rows.height, cells])
+  }, [gap, gutter, cells.height, cells.amount])
 
   const recompute = useCallback(() => {
     // Recalculate the available width.
@@ -74,7 +78,7 @@ export function useGrid(input: IInput) {
 
     const [_colsPerRow, colWidth] = calcColsPerRow(
       nextAvailableWidth,
-      cols.minmax,
+      cells.width,
       gap
     )
 
@@ -85,10 +89,10 @@ export function useGrid(input: IInput) {
     colsPerRow.current = _colsPerRow
 
     // Recompute the number of rows that can fit in the grid.
-    rowsAmount.current = calcRowsAmount(colsPerRow.current, cells)
+    rowsAmount.current = calcRowsAmount(colsPerRow.current, cells.amount)
 
     computeVisibleCells()
-  }, [gap, gutter, cols.minmax, cells, computeVisibleCells])
+  }, [gap, gutter, cells, computeVisibleCells])
 
   const getParentProps = useCallback(() => {
     return {
@@ -102,7 +106,7 @@ export function useGrid(input: IInput) {
   }, [])
 
   const getWrapperProps = useCallback(() => {
-    const height = calcGridHeight(rowsAmount.current, rows.height, gap, gutter)
+    const height = calcGridHeight(rowsAmount.current, cells.height, gap, gutter)
 
     if (isNaN(height) || !isFinite(height) || height < 0) {
       return
@@ -115,7 +119,7 @@ export function useGrid(input: IInput) {
         height,
       } as React.CSSProperties,
     }
-  }, [gap, gutter, rows.height])
+  }, [gap, gutter, cells.height])
 
   /**
    * Recompute on mount
@@ -136,12 +140,12 @@ export function useGrid(input: IInput) {
     }
   }, [])
 
-  useEffect(recompute, [cells, gap, gutter])
+  useEffect(recompute, [cells.amount, gap, gutter])
 
   useEffect(computeVisibleCells, [
     gap,
     gutter,
-    rows.height,
+    cells.height,
     computeVisibleCells,
   ])
 
@@ -171,9 +175,15 @@ export function useGrid(input: IInput) {
     getWrapperProps,
 
     /**
-     * Returns the visible cells of the grid.
+     * The visible cells.
      */
     cells: visibleCells,
+
+    /**
+     * An array containing the visible rows.
+     * Useful to build your own sensors.
+     */
+    visibleRows: visibleRows.current,
 
     /**
      * A function that recomputes the grid and the positions
@@ -308,20 +318,17 @@ function isRowVisible(
 }
 
 type IInput = {
-  /**
-   * The total number of cells in the grid.
-   *
-   * This is necessary so Virtualform can calculate the number of rows
-   * and reserve enough space for them.
-   *
-   * @example 100
-   */
-  cells: number
+  cells: {
+    /**
+     * The total number of cells in the grid.
+     *
+     * This is necessary so Virtualform can calculate the number of rows
+     * and reserve enough space for them.
+     *
+     * @example 100
+     */
+    amount: number
 
-  /**
-   * Properties related to the columns of the grid.
-   */
-  cols: {
     /**
      * A tuple containing, respectively, the minimum and maximum width of each column.
      * Useful for responsiveness and behaves similar to CSS Grid.
@@ -334,13 +341,8 @@ type IInput = {
      *
      * @example [100, 100]
      */
-    minmax: [number, number]
-  }
+    width: [number, number]
 
-  /**
-   * Properties related to the rows of the grid.
-   */
-  rows: {
     /**
      * The height of each row. Each and every cell will have its height
      * as the same as the height of the row.
