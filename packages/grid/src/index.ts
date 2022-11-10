@@ -3,18 +3,50 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from './use-event-listener'
 
 export function useGrid(input: IInput) {
-  const { cells, gap = 0, gutter = 0 } = input
+  const { cells, overscan = 0, gap = 0, gutter = 0 } = input
 
   const parentRef = useRef<HTMLDivElement>(null)
 
   const rowsAmount = useRef(0)
   const colsPerRow = useRef(0)
   const colWidthRef = useRef(0)
-  const visibleRows = useRef<number[]>([])
+  const mountedRows = useRef<number[]>([])
 
-  const [visibleCells, setVisibleCells] = useState<ICell[]>([])
+  const [mountedCells, setMountedCells] = useState<ICell[]>([])
 
-  const computeVisibleCells = useCallback(() => {
+  function mountRow(rowIndex: number, rowTop: number, $cellsToMount: ICell[]) {
+    mountedRows.current = [...mountedRows.current, rowIndex]
+
+    let colsAtRow =
+      rowIndex === rowsAmount.current - 1
+        ? cells.amount % colsPerRow.current
+        : colsPerRow.current
+
+    while (colsAtRow--) {
+      const cellIndex = rowIndex * colsPerRow.current + colsAtRow
+
+      const colLeft = calcColLeft(colsAtRow, colWidthRef.current, gap, gutter)
+
+      $cellsToMount.push({
+        index: cellIndex,
+
+        getProps() {
+          return {
+            key: cellIndex.toString(),
+
+            style: {
+              position: 'absolute',
+              width: colWidthRef.current,
+              height: cells.height,
+              transform: `translate(${colLeft}px, ${rowTop}px)`,
+            },
+          }
+        },
+      })
+    }
+  }
+
+  const computeMountedCells = useCallback(() => {
     if (
       rowsAmount.current === Infinity ||
       rowsAmount.current === 0 ||
@@ -23,54 +55,61 @@ export function useGrid(input: IInput) {
       return
     }
 
-    visibleRows.current = []
-    const nextVisibleCells: ICell[] = []
+    mountedRows.current = []
+    const cellsToMount: ICell[] = []
 
     let rowIndex = rowsAmount.current
 
     while (rowIndex--) {
       const rowTop = calcRowTop(rowIndex, cells.height, gap, gutter)
+      const isOnScreen = isRowOnScreen(rowTop, cells.height, parentRef.current)
 
-      if (isRowVisible(rowTop, cells.height, parentRef.current)) {
-        visibleRows.current = [...visibleRows.current, rowIndex]
-
-        let colsAtRow =
-          rowIndex === rowsAmount.current - 1
-            ? cells.amount % colsPerRow.current
-            : colsPerRow.current
-
-        while (colsAtRow--) {
-          const cellIndex = rowIndex * colsPerRow.current + colsAtRow
-
-          const colLeft = calcColLeft(
-            colsAtRow,
-            colWidthRef.current,
-            gap,
-            gutter
-          )
-
-          nextVisibleCells.push({
-            index: cellIndex,
-
-            getProps() {
-              return {
-                key: cellIndex.toString(),
-
-                style: {
-                  position: 'absolute',
-                  width: colWidthRef.current,
-                  height: cells.height,
-                  transform: `translate(${colLeft}px, ${rowTop}px)`,
-                },
-              }
-            },
-          })
-        }
+      if (isOnScreen) {
+        mountRow(rowIndex, rowTop, cellsToMount)
       }
     }
 
-    setVisibleCells(nextVisibleCells)
-  }, [gap, gutter, cells.height, cells.amount])
+    const bottommostIndex = mountedRows.current[0]
+    const topmostIndex = mountedRows.current[mountedRows.current.length - 1]
+
+    if (overscan > 0) {
+      let prevRowIndex = Math.max(topmostIndex - overscan, 0)
+      let nextRowIndex = Math.min(
+        bottommostIndex + overscan,
+        rowsAmount.current - 1
+      )
+
+      while (prevRowIndex < topmostIndex) {
+        if (mountedRows.current.indexOf(prevRowIndex) !== -1) {
+          continue
+        }
+
+        mountRow(
+          prevRowIndex,
+          calcRowTop(prevRowIndex, cells.height, gap, gutter),
+          cellsToMount
+        )
+
+        prevRowIndex++
+      }
+
+      while (nextRowIndex > bottommostIndex) {
+        if (mountedRows.current.indexOf(nextRowIndex) !== -1) {
+          continue
+        }
+
+        mountRow(
+          nextRowIndex,
+          calcRowTop(nextRowIndex, cells.height, gap, gutter),
+          cellsToMount
+        )
+
+        nextRowIndex--
+      }
+    }
+
+    setMountedCells(cellsToMount)
+  }, [gap, gutter, overscan, cells.height])
 
   const recompute = useCallback(() => {
     // Recalculate the available width.
@@ -91,8 +130,8 @@ export function useGrid(input: IInput) {
     // Recompute the number of rows that can fit in the grid.
     rowsAmount.current = calcRowsAmount(colsPerRow.current, cells.amount)
 
-    computeVisibleCells()
-  }, [gap, gutter, cells, computeVisibleCells])
+    computeMountedCells()
+  }, [gap, gutter, cells, computeMountedCells])
 
   const getParentProps = useCallback(() => {
     return {
@@ -140,19 +179,20 @@ export function useGrid(input: IInput) {
     }
   }, [])
 
-  useEffect(recompute, [cells.amount, gap, gutter])
+  useEffect(recompute, [cells.amount, gap, gutter, overscan])
 
-  useEffect(computeVisibleCells, [
+  useEffect(computeMountedCells, [
     gap,
     gutter,
+    overscan,
     cells.height,
-    computeVisibleCells,
+    computeMountedCells,
   ])
 
   /**
    * Calc visible rows.
    */
-  useEventListener('scroll', computeVisibleCells, parentRef)
+  useEventListener('scroll', computeMountedCells, parentRef)
 
   useEventListener('resize', recompute)
 
@@ -175,15 +215,15 @@ export function useGrid(input: IInput) {
     getWrapperProps,
 
     /**
-     * The visible cells.
+     * The cells that are monuted.
      */
-    cells: visibleCells,
+    cells: mountedCells,
 
     /**
      * An array containing the visible rows.
      * Useful to build your own sensors.
      */
-    visibleRows: visibleRows.current,
+    mountedRows: mountedRows.current,
 
     /**
      * A function that recomputes the grid and the positions
@@ -303,7 +343,7 @@ function calcGridHeight(
 /**
  * Returns a filtered array of rows that are visible in the grid.
  */
-function isRowVisible(
+function isRowOnScreen(
   rowTop: number,
   rowsHeight: number,
   parentElement: Element
@@ -369,6 +409,12 @@ type IInput = {
    * @example 50
    */
   gutter?: number
+
+  /**
+   * The amount of rows that will be mounted even when not visible to the user.
+   * This is useful to give a smoother experience while scrolling.
+   */
+  overscan?: number
 }
 
 type ICell = {

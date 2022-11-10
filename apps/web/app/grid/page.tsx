@@ -29,6 +29,7 @@ export default function Page() {
 
     gap: Playground.gap,
     gutter: Playground.gutter,
+    overscan: Playground.overscan,
   })
 
   useEffect(() => {
@@ -162,6 +163,32 @@ const Sidebar = () => {
 
               <option value={50} selected={Playground.gap === 50}>
                 50
+              </option>
+            </InputSelect>
+          </div>
+        </div>
+
+        <div className='flex gap-2 flex-col'>
+          <header className='flex flex-col gap-0.5'>
+            <strong>Overscan</strong>
+
+            <small className='text-gray-400'>
+              Adjust the amount of rows outside the human eye that will be
+              mounted.
+            </small>
+          </header>
+
+          <div>
+            <InputSelect
+              onChange={(e) => {
+                Playground.overscan = Number(e.target.value)
+              }}>
+              <option value={0} selected={Playground.overscan === 0}>
+                0
+              </option>
+
+              <option value={5} selected={Playground.overscan === 5}>
+                5
               </option>
             </InputSelect>
           </div>

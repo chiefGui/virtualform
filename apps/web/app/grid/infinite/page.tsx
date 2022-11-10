@@ -79,29 +79,24 @@ export default function Page() {
 
   const { fetchMore, isLoading, data, hasMore } = useQuery()
 
-  const {
-    getParentProps,
-    getWrapperProps,
-    cells,
-    recompute,
-    rowsAmount,
-    visibleRows,
-  } = useGrid({
-    cells: {
-      amount: data.length,
-      width: [100, 100],
-      height: 100,
-    },
+  const { getParentProps, getWrapperProps, cells, rowsAmount, mountedRows } =
+    useGrid({
+      cells: {
+        amount: data.length,
+        width: [100, 100],
+        height: 100,
+      },
 
-    gap: Playground.gap,
-    gutter: Playground.gutter,
-  })
+      gap: Playground.gap,
+      gutter: Playground.gutter,
+      overscan: Playground.overscan,
+    })
 
   useEffect(() => {
-    if (visibleRows.includes(rowsAmount - 1) && !isLoading && hasMore) {
+    if (mountedRows.includes(rowsAmount - 1) && !isLoading && hasMore) {
       fetchMore()
     }
-  }, [visibleRows, rowsAmount, isLoading, hasMore])
+  }, [mountedRows, rowsAmount, isLoading, hasMore])
 
   return (
     <div className='w-full h-full flex relative'>

@@ -6,6 +6,7 @@ export const Playground = {
     itemsAmount: 1000,
     gap: 0,
     gutter: 0,
+    overscan: 0,
     placeholder: false,
   }),
 
@@ -25,17 +26,6 @@ export const Playground = {
     this.state.set((prev) => ({ ...prev, gutter: newGutter }))
   },
 
-  get containerPercentage() {
-    return this.state.now().containerPercentage
-  },
-
-  set containerPercentage(newContainerPercentage: number) {
-    this.state.set((prev) => ({
-      ...prev,
-      containerPercentage: newContainerPercentage,
-    }))
-  },
-
   get itemsAmount() {
     return this.state.now().itemsAmount
   },
@@ -44,12 +34,12 @@ export const Playground = {
     this.state.set((prev) => ({ ...prev, itemsAmount: newItemsAmount }))
   },
 
-  get placeholder() {
-    return this.state.now().placeholder
+  get overscan() {
+    return this.state.now().overscan
   },
 
-  set placeholder(newPlaceholder: boolean) {
-    this.state.set((prev) => ({ ...prev, placeholder: newPlaceholder }))
+  set overscan(newOverscan: number) {
+    this.state.set((prev) => ({ ...prev, overscan: newOverscan }))
   },
 }
 
@@ -59,4 +49,5 @@ interface IState {
   gap: number
   gutter: number
   placeholder: boolean
+  overscan: number
 }
