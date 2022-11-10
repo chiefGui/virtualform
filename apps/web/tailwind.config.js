@@ -3,6 +3,10 @@ module.exports = {
   content: ['./app/**/*.{js,ts,jsx,tsx}', './lib/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      scale: {
+        200: '2',
+      },
+
       colors: {
         gray: {
           DEFAULT: '#585858',

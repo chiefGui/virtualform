@@ -17,14 +17,7 @@ export default function Page() {
     randomItems(Playground.state.now().itemsAmount)
   )
 
-  const {
-    getParentProps,
-    getWrapperProps,
-    getRows,
-    cells,
-    recompute,
-    rowsAmount,
-  } = useGrid({
+  const { getParentProps, getWrapperProps, cells, recompute } = useGrid({
     cells: items.length,
 
     cols: {
@@ -60,14 +53,15 @@ export default function Page() {
       <div
         style={{
           ...style,
-          height,
+
           width: `${containerPercentage}%`,
+          height,
         }}
         {...parentProps}>
         <div {...getWrapperProps()}>
           {cells.map((cell) => {
             return (
-              <div {...cell.getProps()}>
+              <div {...cell.getProps()} className='group hover:z-50 z-0'>
                 <Pic indicator={cell.index + 1} src={items[cell.index]} />
               </div>
             )
