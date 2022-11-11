@@ -14,37 +14,40 @@ export function useGrid(input: IInput) {
 
   const [mountedCells, setMountedCells] = useState<ICell[]>([])
 
-  function mountRow(rowIndex: number, rowTop: number, $cellsToMount: ICell[]) {
-    mountedRows.current = [...mountedRows.current, rowIndex]
+  const mountRow = useCallback(
+    (rowIndex: number, rowTop: number, $cellsToMount: ICell[]) => {
+      mountedRows.current = [...mountedRows.current, rowIndex]
 
-    let colsAtRow =
-      rowIndex === rowsAmount.current - 1
-        ? cells.amount % colsPerRow.current
-        : colsPerRow.current
+      let colsAtRow =
+        rowIndex === rowsAmount.current - 1
+          ? cells.amount % colsPerRow.current
+          : colsPerRow.current
 
-    while (colsAtRow--) {
-      const cellIndex = rowIndex * colsPerRow.current + colsAtRow
+      while (colsAtRow--) {
+        const cellIndex = rowIndex * colsPerRow.current + colsAtRow
 
-      const colLeft = calcColLeft(colsAtRow, colWidthRef.current, gap, gutter)
+        const colLeft = calcColLeft(colsAtRow, colWidthRef.current, gap, gutter)
 
-      $cellsToMount.push({
-        index: cellIndex,
+        $cellsToMount.push({
+          index: cellIndex,
 
-        getProps() {
-          return {
-            key: cellIndex.toString(),
+          getProps() {
+            return {
+              key: cellIndex.toString(),
 
-            style: {
-              position: 'absolute',
-              width: colWidthRef.current,
-              height: cells.height,
-              transform: `translate(${colLeft}px, ${rowTop}px)`,
-            },
-          }
-        },
-      })
-    }
-  }
+              style: {
+                position: 'absolute',
+                width: colWidthRef.current,
+                height: cells.height,
+                transform: `translate(${colLeft}px, ${rowTop}px)`,
+              },
+            }
+          },
+        })
+      }
+    },
+    [cells.amount, cells.height, gap, gutter]
+  )
 
   const computeMountedCells = useCallback(() => {
     if (
@@ -109,7 +112,7 @@ export function useGrid(input: IInput) {
     }
 
     setMountedCells(cellsToMount)
-  }, [gap, gutter, overscan, cells.height])
+  }, [gap, gutter, overscan, cells.height, mountRow])
 
   const recompute = useCallback(() => {
     // Recalculate the available width.
@@ -131,7 +134,7 @@ export function useGrid(input: IInput) {
     rowsAmount.current = calcRowsAmount(colsPerRow.current, cells.amount)
 
     computeMountedCells()
-  }, [gap, gutter, cells, computeMountedCells])
+  }, [gap, gutter, cells, computeMountedCells, parentRef])
 
   const getParentProps = useCallback(() => {
     return {
@@ -413,6 +416,13 @@ type IInput = {
   /**
    * The amount of rows that will be mounted even when not visible to the user.
    * This is useful to give a smoother experience while scrolling.
+   *
+   * Don't exaggerate with this number, though. The more overscan rows you have,
+   * the more expensive it will be to render the grid, thus making the scrolling
+   * experience worse.
+   *
+   * While developing, it's recommended to start with 0 and increase gradually
+   * until you find the right number that gives the best experience.
    */
   overscan?: number
 }
