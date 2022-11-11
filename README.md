@@ -14,7 +14,7 @@
 
 **Virtualform** was designed from the bottom up to be fast. We chose [O(1)](https://en.wikipedia.org/wiki/Time_complexity) algorithms and good caching management over [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) to guarantee lightning fast, consistent performance all around.
 
-#### 📐 Responsiveness for free
+#### 📐 Responsive out of the box
 
 Code once, works everywhere. Automatically. Yes, that's right: you don't have to worry about different screen sizes at all.
 
@@ -44,7 +44,7 @@ That said, at the time I'm writing this, I'd only suggest you to use **Virtualfo
 
 ## 🆘 FAQ
 
-### What is virtualization?
+<details><summary><b>What is virtualization?</b></summary>
 
 Virtualization, or windowing, is the concept of "unloading" content that's not visible to the human eye, hence making your application more performant.
 
@@ -52,7 +52,9 @@ Imagine Instagram's feed: you can spend a day scrolling down and you don't feel 
 
 There are plenty of nuances here I don't want to dive into, but in a nutshell, that's how virtualization can be understood.
 
-### Is virtualization for me?
+</details>
+
+<details><summary><b>Is virtualization for me?</b></summary>
 
 It depends. Virtualization is only useful when you are dealing with a great, or an unpredictable, amount of data.
 
@@ -63,39 +65,71 @@ To give you a sense of scale,
 
 Virtualization comes at a very expensive cost: complexity. It's more difficult to maintain, it's more difficult to digest and if not done properly, it may lock you in a place where you become a hostage, really hard to get out.
 
-### Why Virtualform was created?
+</details>
+
+<details><summary><b>Why Virtualform was created?</b></summary>
 
 At [Starchive](https://starchive.io), we render huge grids of files and the painting, loading and scrolling experience have to be fast and seamless. We already used other virtualization libraries that did a pretty good job, but we always had the feeling that either a feature was missing or proper developer experience was lacking.
 
 **Virtualform** was built from scratch to address the two problems at the same time.
 
-### Why do I need to explictly specify the amount of cells to render?
+</details>
 
-That was a design decision I made because of my needs at [Starchive](https://starchive.io). We paginate our data using infinite loading, thus we need the exact amount of data so **Virtualform** can reserve the necessary space to accomodate all the items coming from our API, to give our customers the best experience as possible.
+<details><summary><b>Why Virtualform instead of __________?</b></summary>
 
-Also, I can't remember of any other virtualization solution that didn't ask for the amount of items to render. Please, let me know if you know any.
+### Hooks instead of components.
 
-### How stable is Virtualform right now?
+This is not a bad thing per say, but hooks give you power at a greater scope than a component does.
+
+### Responsive out of the box.
+
+Give us the components and we make them responsive.
+
+### Predictable and headless.
+
+No hidden wrapping divs or styles&mdash;you own the visuals and the DOM tree.
+
+### Not only fast. Ultra-fast.
+
+[Check out the demo with 100k cells](https://virtualform.vercel.app/)
+
+### Well documented.
+
+We put great effort on making the documentation incredible. We expect both beginners and experienced devs to be able to read and understand the tidbits of **Virtualform**.
+
+</details>
+
+<details><summary><b>How stable is Virtualform right now?</b></summary>
 
 As is, it's pretty stable&mdash;we are using it in production.
 
 However, note that its API can change. And I say "can" because there's no plan for it, but if really needed, it'll be changed.
 
-### Where's feature X?
+</details>
+
+<details><summary><b>Where's feature X?</b></summary>
 
 **Virtualform** is an ongoing project that first has to satisfy the needs we have at [Starchive](https://starchive.io). Everything it offers right now is based on our demands at the company. If it lacks a feature you need, feel free to submit a Pull Request or Create an Issue asking for it.
 
-### Will Virtualform support lists/tabular data other than grids?
+</details>
+
+<details><summary><b>Will Virtualform support lists/tabular data other than grids?</b></summary>
 
 Yes.
 
-### Will Virtualform support Masonry-like grids?
+</details>
+
+<details><summary><b>Will Virtualform support Masonry-like grids?</b></summary>
 
 Very likely.
 
-### Will Virtualform support horizontal scrolling?
+</details>
+
+<details><summary><b>Will Virtualform support horizontal scrolling?</b></summary>
 
 Very likely.
+
+</details>
 
 ---
 
