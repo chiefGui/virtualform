@@ -45,6 +45,9 @@ jobs:
           scope: '@virtualform'
           cache: 'npm'
 
+      - name: Set deployment token
+        run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
