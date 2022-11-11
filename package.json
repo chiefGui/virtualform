@@ -10,9 +10,11 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "publish-packages": "turbo run build lint format && changeset version && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.25.2",
     "eslint-config-custom": "*",
     "prettier": "latest",
     "turbo": "latest"
