@@ -1,8 +1,21 @@
 {
   "name": "@virtualform/grid",
   "version": "0.0.1",
-  "main": "src/index.ts",
-  "license": "MIT",
+  "main": "dist/grid.esm.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/grid.esm.js",
+      "require": "./dist/grid.cjs.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "shx rm -rf **/dist",
+    "build": "microbundle -i src/index.ts -f esm,amd",
+    "dev": "yarn build --watch"
+  },
   "dependencies": {
     "eslint": "^7.23.0",
     "eslint-config-next": "13.0.0",
@@ -14,9 +27,27 @@
     "react": "^18.2.0"
   },
   "devDependencies": {
+    "microbundle": "^0.15.1",
     "typescript": "^4.8.4"
   },
+  "homepage": "https://github.com/chiefGui/virtualform",
+  "bugs": {
+    "url": "https://github.com/chiefGui/virtualform/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Guilherme \"chiefGui\" Oderdenge"
+  },
   "publishConfig": {
-    "access": "public"
-  }
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "source": "src/index.ts",
+    "main": "dist/grid.js"
+  },
+  "keywords": [
+    "virtualization",
+    "react virtualization",
+    "grid virtualization",
+    "grid"
+  ]
 }
