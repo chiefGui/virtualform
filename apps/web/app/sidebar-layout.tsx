@@ -18,26 +18,20 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
   return (
     <aside className='flex flex-col h-screen min-w-[320px] w-[320px] bg-black text-white'>
       <div className='flex-1'>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className='flex items-center w-full h-24 mt-8'>
-          <Logo className='w-full h-full' />
-        </motion.div>
+        <div className='flex items-center p-8 gap-4'>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className='flex h-10'>
+            <Logo className='w-full h-full text-turquoise-500' />
+          </motion.div>
 
-        <nav className='p-8'>
-          <ul className='flex items-center gap-2 w-full'>
-            <Item src='/grid'>Grid</Item>
-
-            <Item src='/list' disabled>
-              List
-            </Item>
-
-            <Item src='/masonry' disabled>
-              Masonry
-            </Item>
-          </ul>
-        </nav>
+          <nav>
+            <ul className='flex items-center gap-2 w-full'>
+              <Item src='/grid'>Grid</Item>
+            </ul>
+          </nav>
+        </div>
 
         {children}
       </div>
@@ -47,7 +41,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
           href='https://github.com/chiefGui/virtualform'
           target='_blank'
           rel='noopener noreferrer'>
-          <i className='fab fa-github text-3xl' />
+          <i className='fab fa-github text-3xl hover:text-brand transition-all duration-75' />
         </Link>
       </footer>
     </aside>
@@ -73,9 +67,9 @@ const Item = forwardRef<
         ref={ref}
         {...props}
         className={twMerge(
-          'border border-solid border-gray-800 text-gray-400 h-12 px-4 flex items-center rounded-lg justify-center text-center w-full',
-          !highlight && 'hover:border-white hover:text-white',
-          highlight && 'bg-white text-black',
+          'text-gray-400 font-bold',
+          !highlight && 'hover:border-white hover:text-white cursor-pointer',
+          highlight && 'border-turquoise-500 text-turquoise-500',
           disabled && 'opacity-80'
         )}>
         {children}

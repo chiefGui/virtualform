@@ -66,12 +66,12 @@ const Sidebar = () => {
     <SidebarLayout>
       <nav className='p-8 pt-0'>
         <ul className='flex items-center gap-4'>
-          <li className='bg-white h-8 flex items-center gap-2 text-xs px-4 rounded-lg text-black select-none'>
+          <li className='border border-solid border-brand text-brand h-8 flex items-center gap-2 text-xs px-4 rounded-lg select-none'>
             Simple
           </li>
 
           <Link href='/grid/infinite'>
-            <li className='border-gray-600 border border-solid text-xs rounded-lg h-8 px-4 flex items-center text-gray-300 cursor-pointer hover:border-white hover:text-white transition-all duration-75'>
+            <li className='border-gray-600 border border-solid text-xs rounded-lg h-8 px-4 flex items-center text-gray-300 cursor-pointer hover:border-brand hover:text-brand transition-all duration-75'>
               Infinite Loading
             </li>
           </Link>

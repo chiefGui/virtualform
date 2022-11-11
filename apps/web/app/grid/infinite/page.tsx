@@ -110,7 +110,7 @@ export default function Page() {
               animate={{ y: -20, opacity: 1 }}
               exit={{ y: 10, opacity: 0 }}
               transition={{ delay: 0.2 }}
-              className='fixed left-1/2 bottom-0 h-fit text-center p-4 px-8 bg-white text-black z-50 rounded-3xl shadow-xl font-bold'>
+              className='fixed left-1/2 bottom-0 h-fit text-center p-4 px-8 bg-brand text-black z-50 rounded-3xl shadow-xl font-bold'>
               Loading more results...
             </motion.div>
           )}
@@ -136,12 +136,12 @@ const Sidebar = () => {
       <nav className='p-8 pt-0'>
         <ul className='flex items-center gap-4'>
           <Link href='/grid'>
-            <li className='border-gray-600 border border-solid text-xs rounded-lg h-8 px-4 flex items-center text-gray-300 cursor-pointer hover:border-white hover:text-white transition-all duration-75'>
+            <li className='border-gray-600 border border-solid text-xs rounded-lg h-8 px-4 flex items-center text-gray-300 cursor-pointer hover:border-brand hover:text-brand transition-all duration-75'>
               Simple
             </li>
           </Link>
 
-          <li className='bg-white h-8 flex items-center gap-2 text-xs px-4 rounded-lg text-black select-none'>
+          <li className='border border-solid border-brand text-brand h-8 flex items-center gap-2 text-xs px-4 rounded-lg select-none'>
             Infinite Loading
           </li>
         </ul>
@@ -201,6 +201,32 @@ const Sidebar = () => {
 
               <option value={50} selected={Playground.gap === 50}>
                 50
+              </option>
+            </InputSelect>
+          </div>
+        </div>
+
+        <div className='flex gap-2 flex-col'>
+          <header className='flex flex-col gap-0.5'>
+            <strong>Overscan</strong>
+
+            <small className='text-gray-400'>
+              Adjust the amount of rows outside the human eye that will be
+              mounted.
+            </small>
+          </header>
+
+          <div>
+            <InputSelect
+              onChange={(e) => {
+                Playground.overscan = Number(e.target.value)
+              }}>
+              <option value={0} selected={Playground.overscan === 0}>
+                0
+              </option>
+
+              <option value={5} selected={Playground.overscan === 5}>
+                5
               </option>
             </InputSelect>
           </div>

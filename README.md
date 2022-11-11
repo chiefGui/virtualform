@@ -1,194 +1,40 @@
-![Virtualform hero](https://i.imgur.com/d6Obyxk.png)
+![Virtualform hero](https://i.imgur.com/jcRnTxu.png)
 
 <div align="center">
 
-### A headless, ultra-fast virtualization engine for React.
+### An ultra-fast, responsive and headless virtualization engine for React.
 
-[Quick Start](#-quick-start) · [API](#usegrid) · [Demo](https://refocus.vercel.app/grid) · [FAQ](#-faq)
+[Highlights](#-highlights) · [Before you use](#-before-you-use) · [Grid](/packages/grid) · [Demo](https://virtualform.vercel.app) · [FAQ](#-faq)
 
 </div>
+
+## ✨ Highlights
+
+#### ⚡ Ultra-fast
+
+**Virtualform** was designed from the bottom up to be fast. We chose [O(1)](https://en.wikipedia.org/wiki/Time_complexity) algorithms and good caching management over [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) to guarantee lightning fast, consistent performance all around.
+
+#### 📐 Responsiveness for free
+
+Code once, works everywhere. Automatically. Yes, that's right: you don't have to worry about different screen sizes at all.
+
+#### 💅 Bring your own design<sup>TM</sup>
+
+Thanks to its headless nature, **Virtualform** allows you to design your virtualized grid the way you want.
+
+#### 🤓 Friendly, declarative API
+
+Virtualization is not simple. And because of that, we strived for an ergonomic API&mdash;we expect as much as you a smooth developer experience when working with Virtualform.
+
+#### ♾️ Infinite scrolling without abstractions
+
+The way you achieve infinite scrolling with **Virtualform** is up to you. It may sound boring, but in reality, this is us helping you in the long term. **Virtualform** gives you some tools to help you with it, but our intention is not crossing the line in your codebase.
 
 ## ✋ Before you use
 
 **Virtualform** is currently pretty stable as is, but designed to satisfy our needs at [Starchive](https://starchive.io). For example, it still does not virtualize plain, vertical lists or masonry-like grids. Also, it is fully responsive without the option to opt-out.
 
-That said, at the time I'm writing this, I'd only suggest you to use **Virtualform** if you are specifically looking for a way to virtualize symmetrical, responsive grids. Otherwise, I'd suggest you to use [TanStack Virtual](https://tanstack.com/virtual/v3).
-
-## 🏁 Quick Start
-
-As usual, you have to install it first.
-
-```shell
-yarn add @virtualform/grid
-```
-
-> ⚠️ **NOTE:** Yes, **Virtualform** is currently only meant for grids.
-
-Then, instantiate the hook.
-
-```tsx
-import { useGrid } from '@virtualform/grid'
-
-const App = () => {
-  const { getParentProps, getWrapperProps, getRows } = useGrid({
-    cells: 100,
-
-    rows: {
-      height: 100,
-    },
-
-    cols: {
-      minmax: [100, 100],
-    },
-  })
-
-  return null
-}
-```
-
-And display it!
-
-```tsx
-import { useGrid } from '@virtualform/grid'
-
-const App = () => {
-  const { getParentProps, getWrapperProps, getRows } = useGrid({
-    cells: 100,
-
-    rows: {
-      height: 100,
-    },
-
-    cols: {
-      minmax: [100, 100],
-    },
-  })
-
-  const { style, ...parentProps } = getParentProps()
-
-  return (
-    <div style={{ ...style, width: '100vw', height: 600 }} {...parentProps}>
-      <div {...getWrapperProps()}>
-        {getRows().map((row) => {
-          return (
-            <div {...row.getProps()}>
-              {row.cols().map((col) => {
-                return <div {...col.getProps()}>Item {col.index}</div>
-              })}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-```
-
-✨ You now have a virtualized grid! **Please, to understand why the code looks ugly and nothing is making sense, continue reading the docs.**
-
-## `useGrid`
-
-### Inputs
-
-#### `cells`
-
-A **required** property that expects a `number` that represents the total amount of items to be virtualized. Imagine that you want to display a gallery with a user's photos, and your database knows they have `5000` photos stored. If you want a grid that displays all the photos this user has, then you want to pass `5000` to `cells`.
-
-```tsx
-useGrid({
-  cells: 5000,
-})
-```
-
-#### `cols.minmax`
-
-A **required** property that expects a tuple of numbers (`[number, number]`) that specifies, respectively, the _minimum_ and _maximum_ width a column can have inside your grid.
-
-```tsx
-useGrid({
-  cols: { minmax: [100, 100] },
-})
-```
-
-#### `rows.height`
-
-A **required** property that expects a `number` that represents the `height` of your rows. Each cell (or item, if you prefer) of your grid will have this specified height.
-
-```tsx
-useGrid({
-  rows: { height: 100 },
-})
-```
-
-### `gap`
-
-An optional property that expects a `number` that represents the space (in pixels) between each column and each row.
-
-```tsx
-useGrid({
-  gap: 10,
-})
-```
-
-> ⚠️ Currently you cannot specify gaps at specific diretions. I.e. gap only at the top, or only at the bottom, etc.
-
-> ⚠️ Gaps won't space the surroundings of your grid. Use [`gutter`](#gutter) for that.
-
-### `gutter`
-
-An optional property that expects a `number` that represents the space (in pixels) around your grid. This is useful when you want better control of where the scrollbar will be displayed at, otherwise, using traditional styling methods, such as `padding` or `margin` at a parent element, will work just fine.
-
-```tsx
-useGrid({
-  gutter: 50,
-})
-```
-
-### Outputs
-
-#### `getParentProps`
-
-A function that returns the necessary props a `<div />` must have in order to proper virtualize things. It's nothing scary, really, just some styles and a `ref`.
-
-```tsx
-const { ..., getParentProps } = useGrid({
-  // ...
-})
-```
-
-> ⚠️ The parent `<div />` necessarily needs an explicit `height`.
-
-#### `getWrapperProps`
-
-A function that returns the necessary props a `<div />` inside the parent div needs to properly virtualize things. `styles` only, and we recommend that you don't tweak position-related styles too much otherwise your virtualization may break.
-
-```tsx
-const { ..., getWrapperProps } = useGrid({
-  // ...
-})
-```
-
-#### `getRows`
-
-A function that returns an array containing your rows. Each `row` is composed by a few properties:
-
-- `isVisible`: a `boolean` that checks whether the row is visible on screen. This is useful for you to control what you want to do to the rows that are not being seen by the user, such as displaying a placeholder (in case they scroll too fast).
-- `index`: a `number` that represents the index of each row.
-- `getProps()`: a `function` to be spread at the `<div />` of each row. Returns the row's `key` as well as its `style`.
-
-And last but not least, `cols()`. It's a function that returns an array containing the columns of the given row. You have to `.map()` it inside your row so the columns belonging to that row are properly rendered.
-
-Each column returned by the `cols()` array is composed by the following properties:
-
-- `index`: a `number` that represents the index of the column, relative to the row.
-- `cellIndex`: a `number` that represents the index of the cell, regardless of the row.
-- `getProps()`: a `function` to be spread at the firstmost element inside `cols().map()`. It returns the `key` of the cell, as well as its `style`.
-
-```tsx
-const { ..., getRows } = useGrid({
-  // ...
-})
-```
+That said, at the time I'm writing this, I'd only suggest you to use **Virtualform** if you are specifically looking for a way to virtualize symmetrical, responsive grids. Otherwise, I'd suggest you to use [react-window](https://github.com/bvaughn/react-window).
 
 ## 🆘 FAQ
 
@@ -216,10 +62,6 @@ Virtualization comes at a very expensive cost: complexity. It's more difficult t
 At [Starchive](https://starchive.io), we render huge grids of files and the painting, loading and scrolling experience have to be fast and seamless. We already used other virtualization libraries that did a pretty good job, but we always had the feeling that either a feature was missing or proper developer experience was lacking.
 
 **Virtualform** was built from scratch to address the two problems at the same time.
-
-### Why Virtualform has this exquisite API?
-
-I know, right? Well, it's not _that_ exquisite once you start working with it. It gives you some freedom like no other library I used had give me. It was inspired by [Floating UI](https://floating-ui.com/).
 
 ### Why do I need to explictly specify the amount of cells to render?
 

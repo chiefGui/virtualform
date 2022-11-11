@@ -8,6 +8,22 @@ module.exports = {
       },
 
       colors: {
+        brand: '#00FFD1',
+
+        turquoise: {
+          DEFAULT: '#00FFD1',
+          50: '#E5FFFB',
+          100: '#CCFFF7',
+          200: '#99FFEE',
+          300: '#66FFE5',
+          400: '#33FFDB',
+          500: '#00FFD1',
+          600: '#00D1AA',
+          700: '#00A384',
+          800: '#00755E',
+          900: '#004739',
+        },
+
         gray: {
           DEFAULT: '#585858',
           50: '#F9F9F9',
