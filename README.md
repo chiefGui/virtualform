@@ -4,7 +4,7 @@
 
 ### An ultra-fast, responsive and headless virtualization engine for React.
 
-[Highlights](#-highlights) · [Before you use](#-before-you-use) · [Grid](/packages/grid) · [Demo](https://virtualform.vercel.app) · [FAQ](#-faq)
+[Highlights](#-highlights) · [Before you use](#-before-you-use) · [Documentation](#-documentation) · [Demo](https://virtualform.vercel.app) · [FAQ](#-faq)
 
 </div>
 
@@ -35,6 +35,12 @@ The way you achieve infinite scrolling with **Virtualform** is up to you. It may
 **Virtualform** is currently pretty stable as is, but designed to satisfy our needs at [Starchive](https://starchive.io). For example, it still does not virtualize plain, vertical lists or masonry-like grids. Also, it is fully responsive without the option to opt-out.
 
 That said, at the time I'm writing this, I'd only suggest you to use **Virtualform** if you are specifically looking for a way to virtualize symmetrical, responsive grids. Otherwise, I'd suggest you to use [react-window](https://github.com/bvaughn/react-window).
+
+## 📚 Documentation
+
+- [Grid](/packages/grid)
+- List (under development)
+- Masonry (under development)
 
 ## 🆘 FAQ
 
