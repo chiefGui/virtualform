@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from './use-event-listener'
 
 /**
- * The hook for building up your virtualized grid.
+ * The hook for building up your virtualized grid
  */
 export function useGrid(input: IInput) {
   const { cells, overscan = 0, gap = 0, gutter = 0 } = input
