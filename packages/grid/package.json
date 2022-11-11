@@ -12,7 +12,6 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "prebuild": "shx rm -rf **/dist",
     "build": "microbundle -i src/index.ts -f esm,amd",
     "dev": "yarn build --watch"
   },
