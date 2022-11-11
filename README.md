@@ -60,10 +60,10 @@ It depends. Virtualization is only useful when you are dealing with a great, or 
 
 To give you a sense of scale,
 
-- I wouldn't bother if I have to render up to 100-200 pictures. Anything beyond that though, I'd definitely virtualize.
+- I wouldn't bother if I had to render up to 100-200 pictures. Anything beyond that though, I'd definitely virtualize.
 - I wouldn't bother to virtualize data that aren't paginated through infinite loading. I'd display 100 items per page and that's it.
 
-Virtualization comes at a very expensive cost: complexity. It's more difficult to maintain, it's more difficult to digest and if not done properly, it may lock you in a place where you become a hostage, really hard to get out.
+Virtualization comes at a very expensive cost: complexity. It makes your codebase more difficult to maintain, more difficult to understand and if not done properly, it may lock you in a place where you become a hostage, really hard to get out.
 
 </details>
 

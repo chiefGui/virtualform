@@ -77,7 +77,7 @@ useGrid({
   The absolute amount of cells to render in the grid. A cell is a single element. A gallery displaying 5000 pictures has a `cells.amount` of `5000`.
 
 - `width`: `[number, number]` · _Required_
-  A tuple with respectively, the minimum and the maximum width of each cell in your grid. **Virtualform** asks for both values for responsiveness purposes. You can have minimum and maximum width as being the same number&mdash;in this case, Virtualform won't exactly respect you, but will try its best to do so.
+  A tuple with, respectively, the minimum and the maximum width of each cell in your grid. **Virtualform** asks for both values for responsiveness purposes. You can have minimum and maximum width as being the same number&mdash;in this case, Virtualform won't exactly respect you, but will try its best to do so.
 - `height`: `number` · _Required_
   The height of each cell of the grid. You can change this value in runtime that **Virtualform** will recompute itself.
 
@@ -135,7 +135,7 @@ To recap:
 
 - A "visible" cell is the concept of a mounted cell, except it's present at the visible portion of your grid, so it's expected the user is seeing it.
 - An "overscanned" cell is a mounted cell that's not visible at the viewport.
-- A mounted cell is present at the DOM and will cost to the CPU to compute it, even though is not necessarily explictly visible to the human eye.
+- A mounted cell is present at the DOM and will cost to the CPU to compute it, even though it's not necessarily explictly visible to the human eye.
 - Not mounted cells don't cost CPU computation and only exist in memory. These are the virtualized cells.
 
 #### A note of caution
@@ -278,7 +278,7 @@ It's very important that _you don't trust the order_ of the indices. So:
 
 ❌ **Don't:**
 
-```
+```ts
 if (mountedRows[10]) {
   // do something when row 10 is mounted
 }
@@ -286,13 +286,13 @@ if (mountedRows[10]) {
 
 ✅ **Do:**
 
-```
+```ts
 if (mountedRows.includes(10)) {
   // do something when row 10 is mounted
 }
 ```
 
-**PRO TIP:** It's very likely that you don't need this property at all, unless you are working with [infinite loading](/packages/grid/recipes/Infinite-Loading.md).
+**PRO TIP:** It's very likely that you don't need this property at all. However, it's useful if you are into [infinite loading](/packages/grid/recipes/Infinite-Loading.md).
 
 #### `rowsAmount`
 
