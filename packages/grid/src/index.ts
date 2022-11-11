@@ -18,10 +18,10 @@ export function useGrid(input: IInput) {
     (rowIndex: number, rowTop: number, $cellsToMount: ICell[]) => {
       mountedRows.current = [...mountedRows.current, rowIndex]
 
-      let colsAtRow =
-        rowIndex === rowsAmount.current - 1
-          ? cells.amount % colsPerRow.current
-          : colsPerRow.current
+      let colsAtRow = Math.min(
+        colsPerRow.current,
+        cells.amount - rowIndex * colsPerRow.current
+      )
 
       while (colsAtRow--) {
         const cellIndex = rowIndex * colsPerRow.current + colsAtRow
