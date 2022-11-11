@@ -158,6 +158,6 @@ Anyways... Congratulations, you now have an infinite, virtualized grid!
 
 <div align="center">
 
-[Home](/) · [Grid Documentation](/packages/grid) · [Demo](https://virtualform.vercel.app)
+[Home](https://github.com/chiefGui/virtualform) · [Grid Documentation](/packages/grid) · [Demo](https://virtualform.vercel.app)
 
 </div>
