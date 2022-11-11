@@ -4,7 +4,7 @@
 
 ### The documentation for `@virtualform/grid`
 
-[Home](https://github.com/chiefGui/virtualform) · [Quick Start](#-quick-start) · [API](#gear-api) · [Demo](https://virtualform.vercel.app)
+[Home](https://github.com/chiefGui/virtualform) · [Quick Start](#-quick-start) · [API](#gear-api) · [Recipes](#-recipes) · [Demo](https://virtualform.vercel.app)
 
 </div>
 
@@ -121,13 +121,13 @@ This property is useful when you want a smoother experience when the user is scr
 
 See the examples below:
 
-![Instructions for overscan at 0](https://i.imgur.com/iaweBZA.png)
+![Instructions for overscan at 0](https://i.imgur.com/7OqqCka.png)
 
 The image above demonstrates what happens when your `overscan` is at `0` (the default value). As you can see, only the visible cells are mounted on the DOM and this is the fastest way to use **Virtualform**.
 
 Now, let's look at what happens when you have an `overscan` of `2`:
 
-![Instructions for overscan](https://i.imgur.com/60FqHOp.png)
+![Instructions for overscan](https://i.imgur.com/ZXBwYR2.png)
 
 As you can see, the two rows above and below the visible row will be mounted as well, meaning that when the user scrolls through these overscanned rows, they won't see that blink of components mounting.
 
@@ -292,7 +292,7 @@ if (mountedRows.includes(10)) {
 }
 ```
 
-**PRO TIP:** It's very likely that you don't need this property at all, unless you are working with infinite loading.
+**PRO TIP:** It's very likely that you don't need this property at all, unless you are working with [infinite loading](/packages/grid/recipes/Infinite-Loading.md).
 
 #### `rowsAmount`
 
@@ -305,6 +305,10 @@ Returns the computed amount (`number`) of columns/cells per row.
 #### `colWidth`
 
 Returns the computed width (`number`), in pixels, of the columns/cells. All columns/cells have the same width.
+
+## 👩‍🍳 Recipes
+
+- [Infinite Loading](/packages/grid/recipes/Infinite-Loading.md)
 
 ---
 
