@@ -16,7 +16,7 @@
 
 #### 🪶 Ultra-lightweight
 
-**Virtualform** aims to be thin and to leave a small footprint. Rest assured: the libraries you are consuming are dependency-free and monitored by [size-limit](https://github.com/ai/size-limit), which imposes a hard limit to the size of the packages of no more than 2 kB. Currently, [@virtualform/grid] weighs a mere 1.16 kB, minified and gzipped.
+**Virtualform** aims to be thin and to leave a small footprint. Rest assured: the libraries you are consuming are dependency-free and monitored by [size-limit](https://github.com/ai/size-limit), which imposes a hard limit to the size of the packages to be [no more than 2 kB](/packages/grid/package.json#L17). To give you a glimpse, [@virtualform/grid](/packages/grid) weighs a mere 1.16 kB, minified and gzipped.
 
 #### 📐 Responsive out of the box
 
