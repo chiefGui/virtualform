@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "size": "size-limit",
-    "build": "microbundle -i src/index.ts -f esm,amd",
+    "build": "microbundle -i src/index.ts -f esm",
     "dev": "yarn build --watch"
   },
   "dependencies": {

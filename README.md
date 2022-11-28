@@ -16,7 +16,7 @@
 
 #### 🪶 Ultra-lightweight
 
-**Virtualform** aims to be thin and to leave a small footprint. Rest assured: the libraries you are consuming are dependency-free and monitored by [size-limit](https://github.com/ai/size-limit), which imposes a hard limit to the size of the packages to be [no more than 2 kB](/packages/grid/package.json#L17). To give you a glimpse, [@virtualform/grid](/packages/grid) weighs a mere 1.16 kB, minified and gzipped.
+**Virtualform** aims to be thin and to leave a small footprint. Rest assured: the libraries you are consuming are dependency-free (despite React itself, of course) and monitored by [size-limit](https://github.com/ai/size-limit), which imposes a hard limit to the size of the packages to be [no more than 2 kB](/packages/grid/package.json#L17). To give you a glimpse, [@virtualform/grid](/packages/grid) weighs a mere 1.16 kB, minified and gzipped.
 
 #### 📐 Responsive out of the box
 
@@ -30,9 +30,13 @@ Thanks to its headless nature, **Virtualform** allows you to design your virtual
 
 Virtualization is not simple. And because of that, we strived for an ergonomic API&mdash;we expect as much as you a smooth developer experience when working with Virtualform.
 
-#### ♾️ Infinite scrolling without abstractions
+#### ♾️ Infinite scrolling without abstractions [&rarr;](/packages/grid/recipes/Infinite-Loading.md)
 
 The way you achieve infinite scrolling with **Virtualform** is up to you. It may sound boring, but in reality, this is us helping you in the long term. **Virtualform** gives you some tools to help you with it, but our intention is not crossing the line in your codebase.
+
+#### <img src="https://i.imgur.com/pEC5TKB.png" width="20" height="20" align="center" alt="TypeScript unofficial logo" /> <span>Written in TypeScript</span>
+
+What not to love about type safety and autocompletion?
 
 ## ✋ Before you use
 
