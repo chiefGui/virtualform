@@ -22,18 +22,18 @@ Then have fun!
 import { useGrid } from '@virtualform/grid'
 
 const App = () => {
-  const { getParentProps, getWrapperProps, cells } = useGrid({
+  const { getRootProps, getWrapperProps, cells } = useGrid({
     cells: {
       amount: 1000,
-      width: [100, 100],
+      width: 100,
       height: 100,
     },
   })
 
-  const { style, ...parentProps } = getParentProps()
+  const { style, ...rootProps } = getRootProps()
 
   return (
-    <div style={{ ...style, width: '100vw', height: 600 }} {...parentProps}>
+    <div style={{ ...style, width: '100vw', height: 600 }} {...rootProps}>
       <div {...getWrapperProps()}>
         {cells.map((cell) => {
           return (
@@ -53,7 +53,7 @@ A few quick good-to-knows:
 1. The code above will give you a grid of `1000` cells,
 2. Each cell will have the min width of `100px` and the max width of `100px`,
 3. Each cell will have the fixed height of `100px`,
-4. You must be explicit in the `height` of the parent div (the one spreading `...parentProps`).
+4. You must be explicit in the `height` of the root div (the one spreading `...rootProps`).
 
 ## :gear: API
 
@@ -67,7 +67,7 @@ Below we are going to see what `useGrid()` must and can receive.
 useGrid({
   cells: {
     amount: 1000,
-    width: [50, 100],
+    width: 100,
     height: 100,
   },
 })
@@ -76,10 +76,8 @@ useGrid({
 - `amount`: `number` · _Required_
   The absolute amount of cells to render in the grid. A cell is a single element. A gallery displaying 5000 pictures has a `cells.amount` of `5000`.
 
-- `width`: `[number, number]` · _Required_
-  A tuple with, respectively, the minimum and the maximum width of each cell in your grid. **Virtualform** asks for both values for responsiveness purposes. You can have minimum and maximum width as being the same number&mdash;in this case, Virtualform won't exactly respect you, but will try its best to do so.
-- `height`: `number` · _Required_
-  The height of each cell of the grid. You can change this value in runtime that **Virtualform** will recompute itself.
+- `width`: `number` · _Required_
+  The `width` of the cells. To be completely honest with you, this is an _estimation_ rather than an _exact size_. The reason for an estimation is because of the responsive nature of Virtualform: depending on the screen size, respecting the width passed through this variable, mathematically speaking, is not possible. So in order to achieve pixel perfection, Virtualform will take the `width` only as a reference of what you want your cells to look like, and will do its best to be as close to it as possible.
 
 ### `gap`: `number`, Optional
 
@@ -154,35 +152,35 @@ My recommendation for `overscan` is: while developing, start with `0` and play w
 
 Below we are going to see what `useGrid()` returns.
 
-#### `getParentProps`
+#### `getRootProps`
 
-A function that returns the necessary props the parent `<div />` must have in order to proper virtualize things. It's nothing scary, really, just some styles and a `ref`.
+A function that returns the necessary props the root `<div />` must have in order to proper virtualize things. It's nothing scary, really, just some styles and a `ref`.
 
 ```tsx
-const { getParentProps, ...etc } = useGrid({
+const { getRootProps, ...etc } = useGrid({
   // ...
 })
 
-const { style, ...parentProps } = getParentProps()
+const { style, ...rootProps } = getRootProps()
 
-return <div style={{ ...style, height: '100vh' }} {...parentProps} />
+return <div style={{ ...style, height: '100vh' }} {...rootProps} />
 ```
 
-> ⚠️ The parent `<div />` necessarily needs an explicit `height`.
+> ⚠️ The root `<div />` necessarily needs an explicit `height`.
 
 #### `getWrapperProps`
 
-A function that returns the necessary props a `<div />` inside the parent div needs to properly virtualize things. `styles` only, and we recommend that you don't tweak position-related styles too much otherwise your virtualization may break.
+A function that returns the necessary props a `<div />` inside the root div needs to properly virtualize things. `styles` only, and we recommend that you don't tweak position-related styles too much otherwise your virtualization may break.
 
 ```tsx
-const { getParentProps, getWrapperProps } = useGrid({
+const { getRootProps, getWrapperProps } = useGrid({
   // ...
 })
 
-const { style, ...parentProps } = getParentProps()
+const { style, ...rootProps } = getRootProps()
 
 return (
-  <div style={{ ...style, height: '100vh' }} {...parentProps}>
+  <div style={{ ...style, height: '100vh' }} {...rootProps}>
     <div {...getWrapperProps()} />
   </div>
 )
@@ -193,14 +191,14 @@ return (
 An array containing the mounted cells (the visible ones and the ones used by [overscan](#overscan-number-optional)). You must render these cells inside the wrapper div.
 
 ```tsx
-const { getParentProps, getWrapperProps, cells } = useGrid({
+const { getRootProps, getWrapperProps, cells } = useGrid({
   // ...
 })
 
-const { style, ...parentProps } = getParentProps()
+const { style, ...rootProps } = getRootProps()
 
 return (
-  <div style={{ ...style, height: '100vh' }} {...parentProps}>
+  <div style={{ ...style, height: '100vh' }} {...rootProps}>
     <div {...getWrapperProps()}>
       {cells.map((cell) => (
         <div {...cell.getProps()}>Item {cell.index}</div>
@@ -223,18 +221,18 @@ Let's take a look at the properties of a single cell, shall we?
 The function that does the virtualization magic. The same one used internally by **Virtualform**, exposed to you.
 
 ```tsx
-const { getParentProps, getWrapperProps, cells, recompute } = useGrid({
+const { getRootProps, getWrapperProps, cells, recompute } = useGrid({
   // ...
 })
 
-const { style, ...parentProps } = getParentProps()
+const { style, ...rootProps } = getRootProps()
 
 useEffect(() => {
   recompute()
 }, [somethingThatMayAffectTheGrid])
 
 return (
-  <div style={{ ...style, height: '100vh' }} {...parentProps}>
+  <div style={{ ...style, height: '100vh' }} {...rootProps}>
     <div {...getWrapperProps()}>
       {cells.map((cell) => (
         <div {...cell.getProps()}>Item {cell.index}</div>
@@ -248,23 +246,23 @@ I won't call it unlikely, but maybe you don't need to call `recompute`, ever. Wh
 
 > ⚠️ This is an expensive task. Using it with caution it's okay and won't damage the experience, but overabusing it can freeze your app.
 
-#### `mountedRows`
+#### `mountedRowsIndices`
 
 Returns an array containing the indices of all the mounted rows (`number[]`).
 
 ```tsx
-const { getParentProps, getWrapperProps, cells, mountedRows } = useGrid({
+const { getRootProps, getWrapperProps, cells, mountedRowsIndices } = useGrid({
   // ...
 })
 
-const { style, ...parentProps } = getParentProps()
+const { style, ...rootProps } = getRootProps()
 
 useEffect(() => {
-  alert(`There are ${mountedRows.length} in the DOM!`)
+  alert(`There are ${mountedRowsIndices.length} in the DOM!`)
 }, [mountedRows.length])
 
 return (
-  <div style={{ ...style, height: '100vh' }} {...parentProps}>
+  <div style={{ ...style, height: '100vh' }} {...rootProps}>
     <div {...getWrapperProps()}>
       {cells.map((cell) => (
         <div {...cell.getProps()}>Item {cell.index}</div>
@@ -279,7 +277,7 @@ It's very important that _you don't trust the order_ of the indices. So:
 ❌ **Don't:**
 
 ```ts
-if (mountedRows[10]) {
+if (mountedRowsIndices[10]) {
   // do something when row 10 is mounted
 }
 ```
@@ -287,7 +285,7 @@ if (mountedRows[10]) {
 ✅ **Do:**
 
 ```ts
-if (mountedRows.includes(10)) {
+if (mountedRowsIndices.includes(10)) {
   // do something when row 10 is mounted
 }
 ```

@@ -13,18 +13,18 @@ So you are looking for loading data as you scroll, yes? Awesome&mdash;we've got 
 import { useGrid } from '@virtualform/grid'
 
 const Grid = () => {
-  const { getParentProps, getWrapperProps, cells } = useGrid({
+  const { getRootProps, getWrapperProps, cells } = useGrid({
     cells: {
       amount: 1000,
-      width: [50, 100],
+      width: 100,
       height: 100,
     },
   })
 
-  const { style, ...parentProps } = getParentProps()
+  const { style, ...rootProps } = getRootProps()
 
   return (
-    <div style={{ ...style, height: '100vh' }} {...parentProps}>
+    <div style={{ ...style, height: '100vh' }} {...rootProps}>
       <div {...getWrapperProps()}>
         {cells.map((cell) => (
           <div {...cell.getProps()}>Item {cell.index}</div>
@@ -44,18 +44,18 @@ import { useQuery } from 'query-lib' // this is fake; use the lib of your choice
 const Grid = () => {
   const { data, isLoading } = useQuery('/api/pictures')
 
-  const { getParentProps, getWrapperProps, cells } = useGrid({
+  const { getRootProps, getWrapperProps, cells } = useGrid({
     cells: {
       amount: data?.pictures.length ?? 0,
-      width: [50, 100],
+      width: 100,
       height: 100,
     },
   })
 
-  const { style, ...parentProps } = getParentProps()
+  const { style, ...rootProps } = getRootProps()
 
   return (
-    <div style={{ ...style, height: '100vh' }} {...parentProps}>
+    <div style={{ ...style, height: '100vh' }} {...rootProps}>
       {isLoading && <div>Loading initial data...</div>}
 
       {!isLoading && (
@@ -91,19 +91,24 @@ const Grid = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useQuery('/api/pictures')
 
-  const { getParentProps, getWrapperProps, cells, mountedRows, rowsAmount } =
-    useGrid({
-      cells: {
-        amount: data?.pictures.length ?? 0,
-        width: [50, 100],
-        height: 100,
-      },
-    })
+  const {
+    getRootProps,
+    getWrapperProps,
+    cells,
+    mountedRowsIndices,
+    rowsAmount,
+  } = useGrid({
+    cells: {
+      amount: data?.pictures.length ?? 0,
+      width: [50, 100],
+      height: 100,
+    },
+  })
 
-  const { style, ...parentProps } = getParentProps()
+  const { style, ...rootProps } = getRootProps()
 
   useEffect(() => {
-    const isFetchMoreRowMounted = mountedRows.includes(rowsAmount - 2)
+    const isFetchMoreRowMounted = mountedRowsIndices.includes(rowsAmount - 2)
     const shouldFetchMore =
       isFetchMoreRowMounted && hasNextPage && !isFetchingNextPage
 
@@ -112,10 +117,10 @@ const Grid = () => {
     }
 
     fetchNextPage()
-  }, [isFetchingNextPage, hasNextPage, mountedRows])
+  }, [isFetchingNextPage, hasNextPage, mountedRowsIndices])
 
   return (
-    <div style={{ ...style, height: '100vh' }} {...parentProps}>
+    <div style={{ ...style, height: '100vh' }} {...rootProps}>
       {isLoading && <div>Loading initial data...</div>}
       {isFetchingNextPage && <div>Loading more results...</div>}
 
@@ -139,7 +144,7 @@ const Grid = () => {
 Let's see what happened.
 
 1. We are now getting new variables from our `useQuery`: `isFetchingNextPage`, `hasNextPage`, `fetchNextPage`.
-2. We are now getting new variables from our `useGrid`: `rowsAmount`, `mountedRows`.
+2. We are now getting new variables from our `useGrid`: `rowsAmount`, `mountedRowsIndices`.
 3. We called a `useEffect` hook with some dependencies: `isFetchingNextPage`, `hasNextPage`, `mounteRows`. Whenever one of these variables change, the function passed to the `useEffect` will be called (pretty ordinary React code).
 4. In the function passed to `useEffect`, we declared two variables:
    1. `isFetchMoreRowMounted`: checks if the penultimate row is among the mounted rows by **Virtualform**. This is key for infinite loading&mdash;it's where we specify at which point of the scroll we must request for more data (or fetch the next page).
