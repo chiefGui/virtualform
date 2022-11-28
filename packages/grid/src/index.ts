@@ -10,7 +10,7 @@ import {
 import { useEventListener } from './use-event-listener'
 
 export function useGrid(input: IInput) {
-  const { cells, gap = 20, gutter = 0, overscan = 0 } = input
+  const { cells, gap = 0, gutter = 0, overscan = 0 } = input
 
   const rootRef = useRef<HTMLDivElement>(null)
 
