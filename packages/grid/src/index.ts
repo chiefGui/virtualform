@@ -215,6 +215,14 @@ export function useGrid(input: IInput) {
   useEventListener('resize', recompute)
 
   return {
+    /**
+     * A function that returns the props needed at the
+     * root div element.
+     *
+     * The root di must have the wrapper div inside of it.
+     *
+     * @returns The needed props for the root element.
+     */
     getRootProps() {
       return {
         ref: rootRef,
@@ -226,6 +234,14 @@ export function useGrid(input: IInput) {
       }
     },
 
+    /**
+     * A function that returns the props needed at the
+     * wrapper div element.
+     *
+     * The wrapper div element must be placed inside the root div.
+     *
+     * @returns The needed props for the wrapper element.
+     */
     getWrapperProps() {
       return {
         style: {
@@ -238,9 +254,24 @@ export function useGrid(input: IInput) {
       }
     },
 
+    /**
+     * The virtualized cells of the grid. The items in this array
+     * are the cells that are currently mounted in the DOM.
+     *
+     * You may have more or less items in this array depending
+     * on the overscan value.
+     */
     cells: getMountedCells(),
 
+    /**
+     * An array of the indices of the rows that are currently mounted.
+     */
     mountedRowsIndices: mountedRowsIndices.current,
+
+    /**
+     * The absolute amount of rows that are in the grid, regardless
+     * whether they are mounted or not.
+     */
     rowsAmount: rowsData.current.amount,
   }
 }
