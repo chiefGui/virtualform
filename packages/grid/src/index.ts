@@ -259,7 +259,9 @@ export function useGrid(input: IInput) {
      * are the cells that are currently mounted in the DOM.
      *
      * You may have more or less items in this array depending
-     * on the overscan value.
+     * on the overscan value. Greater overscan numbers will
+     * increase the amount of cells in this array whereas lower overscan
+     * numbers will decrease the amount of cells in this array.
      */
     cells: getMountedCells(),
 
