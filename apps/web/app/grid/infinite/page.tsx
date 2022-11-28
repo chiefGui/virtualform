@@ -79,30 +79,35 @@ export default function Page() {
 
   const { fetchMore, isLoading, data, hasMore } = useQuery()
 
-  const { getParentProps, getWrapperProps, cells, rowsAmount, mountedRows } =
-    useGrid({
-      cells: {
-        amount: data.length,
-        width: [100, 100],
-        height: 100,
-      },
+  const {
+    getRootProps,
+    getWrapperProps,
+    cells,
+    rowsAmount,
+    mountedRowsIndices,
+  } = useGrid({
+    cells: {
+      amount: data.length,
+      width: 100,
+      height: 100,
+    },
 
-      gap: Playground.gap,
-      gutter: Playground.gutter,
-      overscan: Playground.overscan,
-    })
+    gap: Playground.gap,
+    gutter: Playground.gutter,
+    overscan: Playground.overscan,
+  })
 
   useEffect(() => {
-    if (mountedRows.includes(rowsAmount - 1) && !isLoading && hasMore) {
+    if (mountedRowsIndices.includes(rowsAmount - 1) && !isLoading && hasMore) {
       fetchMore()
     }
-  }, [mountedRows, rowsAmount, isLoading, hasMore])
+  }, [mountedRowsIndices, rowsAmount, isLoading, hasMore])
 
   return (
     <div className='w-full h-full flex relative'>
       <Sidebar />
 
-      <div className='w-full h-screen' {...getParentProps()}>
+      <div className='w-full h-screen' {...getRootProps()}>
         <AnimatePresence initial={false}>
           {isLoading && (
             <motion.div

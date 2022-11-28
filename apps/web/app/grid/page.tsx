@@ -20,10 +20,10 @@ export default function Page() {
     randomItems(Playground.state.now().itemsAmount)
   )
 
-  const { getParentProps, getWrapperProps, cells, recompute } = useGrid({
+  const { getRootProps, getWrapperProps, cells } = useGrid({
     cells: {
       amount: items.length,
-      width: [100, 100],
+      width: 100,
       height: 100,
     },
 
@@ -46,7 +46,7 @@ export default function Page() {
     <div className='w-full h-full flex'>
       <Sidebar />
 
-      <div className='w-full h-screen' {...getParentProps()}>
+      <div className='w-full h-screen' {...getRootProps()}>
         <div {...getWrapperProps()}>
           {cells.map((cell) => {
             return (
