@@ -55,7 +55,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: npx nx affected --target=release --parallel=3
+          publish: yarn publish-packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
