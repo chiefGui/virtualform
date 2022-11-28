@@ -31,7 +31,6 @@ export function useGrid(input: IInput) {
   const computedRowCells = useRef<IComputedCell[][]>([])
   const mountedRowsIndices = useRef<Index[]>([])
 
-  // To keep track of the re-render checksum.
   const [, setChecksum] = useState(-9999999999)
 
   /**
