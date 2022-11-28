@@ -85,23 +85,23 @@ At [Starchive](https://starchive.io), we render huge grids of files and the pain
 
 <details><summary><b>Why Virtualform instead of __________?</b></summary>
 
-### Hooks instead of components.
+#### Hooks instead of components.
 
-This is not a bad thing per say, but hooks give you power at a greater scope than a component does.
+Components are not a bad thing per say, but hooks give you power at a greater scope than a component does.
 
-### Responsive out of the box.
+#### Responsive out of the box.
 
 Give us the components and we make them responsive.
 
-### Predictable and headless.
+#### Predictable and headless.
 
 No hidden wrapping divs or styles&mdash;you own the visuals and the DOM tree.
 
-### Not only fast. Ultra-fast.
+#### Not only fast. Ultra-fast.
 
 [Check out the demo with 100k cells](https://virtualform.vercel.app/)
 
-### Well documented.
+#### Well documented.
 
 We put great effort on making the documentation incredible. We expect both beginners and experienced devs to be able to read and understand the tidbits of **Virtualform**.
 
