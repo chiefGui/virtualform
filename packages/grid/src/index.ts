@@ -9,6 +9,11 @@ import {
 
 import { useEventListener } from './use-event-listener'
 
+/**
+ * The main hook for the virtualized grid.
+ *
+ * @see https://github.com/chiefGui/virtualform/tree/main/packages/grid
+ */
 export function useGrid(input: IInput) {
   const { cells, gap = 0, gutter = 0, overscan = 0 } = input
 
