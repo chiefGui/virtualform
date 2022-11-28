@@ -1,366 +1,248 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { useEventListener } from './use-event-listener'
 
-/**
- * The hook for building up your virtualized grid
- */
 export function useGrid(input: IInput) {
-  const { cells, overscan = 0, gap = 0, gutter = 0 } = input
+  const { cells, gap = 20, gutter = 0, overscan = 0 } = input
 
-  const parentRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
 
-  const rowsAmount = useRef(0)
-  const colsPerRow = useRef(0)
-  const colWidthRef = useRef(0)
-  const mountedRows = useRef<number[]>([])
+  const availableWidth = useRef(0)
+  const wrapperHeight = useRef(0)
+  const rowsData = useRef<IRowsData>({ amount: 0, rows: {} })
+  const colsData = useRef<IColsData>({
+    width: 0,
+    maxPerRow: 0,
+    cols: {},
+  })
 
-  const [mountedCells, setMountedCells] = useState<ICell[]>([])
+  const computedRowCells = useRef<IComputedCell[][]>([])
+  const mountedRowsIndices = useRef<Index[]>([])
 
-  const mountRow = useCallback(
-    (rowIndex: number, rowTop: number, $cellsToMount: ICell[]) => {
-      mountedRows.current = [...mountedRows.current, rowIndex]
+  const [, setChecksum] = useState(-9999999999)
 
-      let colsAtRow = Math.min(
-        colsPerRow.current,
-        cells.amount - rowIndex * colsPerRow.current
-      )
+  /**
+   * Caches the available width for the grid.
+   *
+   * @returns
+   */
+  const cacheAvailableWidth = useCallback(() => {
+    const root = rootRef.current
 
-      while (colsAtRow--) {
-        const cellIndex = rowIndex * colsPerRow.current + colsAtRow
+    if (!root) {
+      console.error(`[Virtualform] The root element is not mounted yet.`)
 
-        const colLeft = calcColLeft(colsAtRow, colWidthRef.current, gap, gutter)
-
-        $cellsToMount.push({
-          index: cellIndex,
-
-          getProps() {
-            return {
-              key: cellIndex.toString(),
-
-              style: {
-                position: 'absolute',
-                width: colWidthRef.current,
-                height: cells.height,
-                transform: `translate(${colLeft}px, ${rowTop}px)`,
-              },
-            }
-          },
-        })
-      }
-    },
-    [cells.amount, cells.height, gap, gutter]
-  )
-
-  const computeMountedCells = useCallback(() => {
-    if (
-      rowsAmount.current === Infinity ||
-      rowsAmount.current === 0 ||
-      !parentRef.current
-    ) {
-      return
+      return 0
     }
 
-    mountedRows.current = []
-    const cellsToMount: ICell[] = []
+    availableWidth.current = root.clientWidth - gutter * 2
+  }, [gutter])
 
-    let rowIndex = rowsAmount.current
+  /**
+   * Caches how many columns each row can have,
+   * as well as the width of each column.
+   *
+   * The width of all columns in a row must occupy the entire available width,
+   * but can not be greater than the maximum width.
+   */
+  const cacheCols = useCallback(() => {
+    const { width } = cells
 
-    while (rowIndex--) {
-      const rowTop = calcRowTop(rowIndex, cells.height, gap, gutter)
-      const isOnScreen = isRowOnScreen(rowTop, cells.height, parentRef.current)
+    const colsPerRow = Math.floor(availableWidth.current / (width + gap))
 
-      if (isOnScreen) {
-        mountRow(rowIndex, rowTop, cellsToMount)
-      }
+    const colWidth =
+      (availableWidth.current - gap * (colsPerRow - 1)) / colsPerRow
+
+    colsData.current = {
+      width: colWidth,
+      maxPerRow: colsPerRow,
+      cols: {},
     }
 
-    const bottommostIndex = mountedRows.current[0]
-    const topmostIndex = mountedRows.current[mountedRows.current.length - 1]
-
-    if (overscan > 0) {
-      let prevRowIndex = Math.max(topmostIndex - overscan, 0)
-      let nextRowIndex = Math.min(
-        bottommostIndex + overscan,
-        rowsAmount.current - 1
-      )
-
-      while (prevRowIndex < topmostIndex) {
-        if (mountedRows.current.indexOf(prevRowIndex) !== -1) {
-          continue
-        }
-
-        mountRow(
-          prevRowIndex,
-          calcRowTop(prevRowIndex, cells.height, gap, gutter),
-          cellsToMount
-        )
-
-        prevRowIndex++
-      }
-
-      while (nextRowIndex > bottommostIndex) {
-        if (mountedRows.current.indexOf(nextRowIndex) !== -1) {
-          continue
-        }
-
-        mountRow(
-          nextRowIndex,
-          calcRowTop(nextRowIndex, cells.height, gap, gutter),
-          cellsToMount
-        )
-
-        nextRowIndex--
+    for (let i = 0; i < colsPerRow; i++) {
+      colsData.current.cols[i] = {
+        left: i * (colWidth + gap) + gutter,
       }
     }
+  }, [cells, gap, gutter])
 
-    setMountedCells(cellsToMount)
-  }, [gap, gutter, overscan, cells.height, mountRow])
+  /**
+   * Caches the amount of rows that will be computed.
+   */
+  const cacheRows = useCallback(() => {
+    const { amount } = cells
 
-  const recompute = useCallback(() => {
-    // Recalculate the available width.
-    const nextAvailableWidth = calcAvailableWidth(parentRef, gutter)
+    const rowsAmount = Math.ceil(amount / colsData.current.maxPerRow)
 
-    const [_colsPerRow, colWidth] = calcColsPerRow(
-      nextAvailableWidth,
-      cells.width,
-      gap
+    rowsData.current = {
+      amount: rowsAmount,
+      rows: {},
+    }
+
+    for (let i = 0; i < rowsAmount; i++) {
+      rowsData.current.rows[i] = {
+        index: i,
+        top: i * (cells.height + gap) + gutter,
+      }
+    }
+  }, [cells, gap, gutter])
+
+  /**
+   * Caches the height of the wrapper.
+   */
+  const cacheWrapperHeight = useCallback(() => {
+    const root = rootRef.current
+
+    if (!root) {
+      console.error(`[Virtualform] The root element is not mounted yet.`)
+
+      return 0
+    }
+
+    wrapperHeight.current =
+      rowsData.current.amount * cells.height +
+      gap * (rowsData.current.amount - 1) +
+      gutter * 2
+  }, [cells.height, gap, gutter])
+
+  const cacheMountedRows = useCallback(() => {
+    const root = rootRef.current
+
+    if (!root) {
+      console.error(`[Virtualform] The root element is not mounted yet.`)
+
+      return 0
+    }
+
+    const { scrollTop, clientHeight } = root
+
+    const start = Math.max(
+      0,
+      Math.floor(scrollTop / (cells.height + gap)) - overscan
     )
 
-    // Recompute the width of a single row.
-    colWidthRef.current = colWidth
+    const end = Math.min(
+      rowsData.current.amount,
+      Math.ceil((scrollTop + clientHeight) / (cells.height + gap)) + overscan
+    )
 
-    // Recompute the number of columns that can fit in a single row of the grid.
-    colsPerRow.current = _colsPerRow
+    mountedRowsIndices.current = []
 
-    // Recompute the number of rows that can fit in the grid.
-    rowsAmount.current = calcRowsAmount(colsPerRow.current, cells.amount)
-
-    computeMountedCells()
-  }, [gap, gutter, cells, computeMountedCells, parentRef])
-
-  const getParentProps = useCallback(() => {
-    return {
-      ref: parentRef,
-
-      style: {
-        position: 'relative',
-        overflowY: 'auto',
-      } as React.CSSProperties,
+    for (let i = start; i < end; i++) {
+      mountedRowsIndices.current.push(i)
     }
-  }, [])
-
-  const getWrapperProps = useCallback(() => {
-    const height = calcGridHeight(rowsAmount.current, cells.height, gap, gutter)
-
-    if (isNaN(height) || !isFinite(height) || height < 0) {
-      return
-    }
-
-    return {
-      style: {
-        width: '100%',
-        position: 'relative',
-        height,
-      } as React.CSSProperties,
-    }
-  }, [gap, gutter, cells.height])
+  }, [cells.height, gap, overscan])
 
   /**
-   * Recompute on mount
+   * Caches the row and col index for each cell.
    */
-  useEffect(() => {
-    let isAvailable = false
+  const cacheCells = useCallback(() => {
+    const { amount } = cells
 
-    while (!isAvailable) {
-      if (parentRef.current) {
-        isAvailable = true
+    computedRowCells.current = []
 
-        break
+    for (let i = 0; i < amount; i++) {
+      const rowIndex = Math.floor(i / colsData.current.maxPerRow)
+      const colIndex = i % colsData.current.maxPerRow
+
+      const row = rowsData.current.rows[rowIndex] as IRow
+      const col = colsData.current.cols[colIndex] as ICol
+
+      if (!computedRowCells.current[rowIndex]) {
+        computedRowCells.current[rowIndex] = []
       }
+
+      computedRowCells.current[rowIndex].push({
+        index: i,
+
+        getProps() {
+          return {
+            key: i,
+
+            style: {
+              position: 'absolute',
+              width: colsData.current.width,
+              height: cells.height,
+              transform: `translate(${col.left}px, ${row.top}px)`,
+            },
+          }
+        },
+      })
     }
+  }, [cells])
 
-    if (isAvailable) {
-      recompute()
-    }
-  }, [])
+  function recompute() {
+    cacheAvailableWidth()
+    cacheCols()
+    cacheRows()
+    cacheWrapperHeight()
+    cacheMountedRows()
+    cacheCells()
 
-  useEffect(recompute, [cells.amount, gap, gutter, overscan])
+    setChecksum((prev) => prev + 1)
+  }
 
-  useEffect(computeMountedCells, [
-    gap,
-    gutter,
-    overscan,
-    cells.height,
-    computeMountedCells,
-  ])
+  function getMountedCells() {
+    return computedRowCells.current
+      .slice(
+        mountedRowsIndices.current[0],
+        mountedRowsIndices.current[mountedRowsIndices.current.length - 1] + 1
+      )
+      .flat()
+  }
 
-  /**
-   * Calc visible rows.
-   */
-  useEventListener('scroll', computeMountedCells, parentRef)
+  useLayoutEffect(recompute, [])
+
+  useEffect(recompute, [cells.amount, gutter, gap, overscan])
+
+  useEventListener(
+    'scroll',
+    () => {
+      cacheMountedRows()
+
+      setChecksum((prev) => prev + 1)
+    },
+    rootRef
+  )
 
   useEventListener('resize', recompute)
 
   return {
-    /**
-     * A function that returns an object with the necessary props for the
-     * firstmost parent of the virtualized grid.
-     *
-     * The wrapper goes inside the parent element.
-     */
-    getParentProps,
+    getRootProps() {
+      return {
+        ref: rootRef,
 
-    /**
-     * A function that returns an object with the necessary props for the
-     * wrapper element to render properly.
-     *
-     * The element spreading these props must be within the parent element
-     * (the one spreading the props returned by `getParentProps`).
-     */
-    getWrapperProps,
-
-    /**
-     * The cells that are monuted.
-     */
-    cells: mountedCells,
-
-    /**
-     * An array containing the visible rows.
-     * Useful to build your own sensors.
-     */
-    mountedRows: mountedRows.current,
-
-    /**
-     * A function that recomputes the grid and the positions
-     * of the cells.
-     *
-     * You usually want to call this function when you want your virtualized grid
-     * to re-render after a change in the number of cells, the gap, the gutter, etc.
-     *
-     * This is quite an expensive task, so use it wisely.
-     */
-    recompute,
-
-    /**
-     * The current number of rows in the grid, regardless of whether they
-     * are visible or not.
-     */
-    get rowsAmount() {
-      return rowsAmount.current
+        style: {
+          position: 'relative',
+          overflowY: 'auto',
+        } as CSSProperties,
+      }
     },
 
-    /**
-     * The current number of columns per row in the grid.
-     */
-    get colsPerRow() {
-      return colsPerRow.current
+    getWrapperProps() {
+      return {
+        style: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: wrapperHeight.current,
+        } as CSSProperties,
+      }
     },
 
-    /**
-     * The current width of each column/cell.
-     */
-    get colWidth() {
-      return colWidthRef.current
-    },
+    cells: getMountedCells(),
+
+    mountedRowsIndices: mountedRowsIndices.current,
+    rowsAmount: rowsData.current.amount,
   }
-}
-
-function calcAvailableWidth(
-  parentRef: React.RefObject<HTMLDivElement>,
-  gutter = 0
-) {
-  if (!parentRef.current) {
-    return 0
-  }
-
-  const { width } = parentRef.current.getBoundingClientRect()
-
-  return width - gutter
-}
-
-/**
- * Returns the number of columns that can fit in the grid.
- *
- * @param availableWidth The available width of the grid.
- * @param minMax The minimum and maximum width of each column.
- * @param gap The gap between each column.
- *
- * @returns A tuple of the number of columns that can fit in the grid and the width of each column.
- */
-function calcColsPerRow(
-  availableWidth: number,
-  minmax: [number, number],
-  gap = 0
-) {
-  const [min, max] = minmax
-
-  const colsPerRow = Math.floor(availableWidth / (max + gap))
-
-  const colWidth = (availableWidth - gap * (colsPerRow - 1)) / colsPerRow
-
-  return [colsPerRow, colWidth]
-}
-
-/**
- * Returns the number of rows that can fit in the grid.
- *
- * @param colsPerRow The number of columns that can fit in the grid.
- * @param totalCells The total number of cells.
- *
- * @returns
- */
-function calcRowsAmount(colsPerRow: number, totalCells: number) {
-  return Math.ceil(totalCells / colsPerRow)
-}
-
-function calcRowTop(rowIndex: number, rowHeight: number, gap = 0, gutter = 0) {
-  return rowIndex * (rowHeight + gap) + gutter / 2
-}
-
-/**
- * Returns the left position of a column in the grid.
- *
- * @param colIndex
- * @param colWidth
- * @param gap
- * @returns
- */
-function calcColLeft(colIndex: number, colWidth: number, gap = 0, gutter = 0) {
-  return colIndex * (colWidth + gap) + gutter / 2
-}
-
-/**
- * Returns the height (in pixels) of the grid.
- *
- * @param rowsAmount The total number of rows.
- * @param gap The gap between each row.
- * @returns
- */
-function calcGridHeight(
-  rowsAmount: number,
-  rowsHeight: number,
-  gap = 0,
-  gutter = 0
-) {
-  return rowsAmount * (rowsHeight + gap) - gap + gutter
-}
-
-/**
- * Returns a filtered array of rows that are visible in the grid.
- */
-function isRowOnScreen(
-  rowTop: number,
-  rowsHeight: number,
-  parentElement: Element
-) {
-  const top = rowTop
-  const bottom = top + rowsHeight
-
-  const parentTop = parentElement.scrollTop
-  const parentBottom = parentTop + parentElement.clientHeight
-
-  return bottom > parentTop && top < parentBottom
 }
 
 type IInput = {
@@ -376,18 +258,12 @@ type IInput = {
     amount: number
 
     /**
-     * A tuple containing, respectively, the minimum and maximum width of each column.
-     * Useful for responsiveness and behaves similar to CSS Grid.
+     * The width of each cell. This is an estimation, as the actual width
+     * of each cell will be calculated based on the available width of the grid.
      *
-     * A column won't ever be greater than the maximum size and won't ever be smaller
-     * than the minimum size.
-     *
-     * If the two numbers are the same, Virtualform will do its best to be as accurate
-     * as possible.
-     *
-     * @example [100, 100]
+     * @example 100
      */
-    width: [number, number]
+    width: number
 
     /**
      * The height of each row. Each and every cell will have its height
@@ -430,7 +306,70 @@ type IInput = {
   overscan?: number
 }
 
-type ICell = {
+/**
+ * A computed cell with all the necessary information to render it.
+ */
+type IComputedCell = {
+  /**
+   * The index of the cell.
+   */
   index: number
-  getProps: () => { key: string; style: React.CSSProperties }
+
+  /**
+   * @returns The props that should be passed to the wrapping div of the cell.
+   */
+  getProps: () => {
+    key: string | number
+    style: Pick<CSSProperties, 'position' | 'width' | 'height' | 'transform'>
+  }
 }
+
+type IRowsData = {
+  /**
+   * The amount of rows in the grid.
+   */
+  amount: number
+
+  /**
+   * The rows in the grid.
+   */
+  rows: Record<number, IRow>
+}
+
+type IRow = {
+  /**
+   * The index of the row.
+   */
+  index: number
+
+  /**
+   * The absolute top position of the row, in pixels.
+   */
+  top: number
+}
+
+type ICol = {
+  /**
+   * The absolute left position of the column, in pixels.
+   */
+  left: number
+}
+
+type IColsData = {
+  /**
+   * The width of each column.
+   */
+  width: number
+
+  /**
+   * The maximum amount of columns a row can have.
+   */
+  maxPerRow: number
+
+  /**
+   * The cached columns.
+   */
+  cols: Record<number, { left: number }>
+}
+
+type Index = number
