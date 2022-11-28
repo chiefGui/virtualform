@@ -11,7 +11,14 @@
     }
   },
   "types": "./dist/index.d.ts",
+  "size-limit": [
+    {
+      "path": "dist/grid.esm.js",
+      "limit": "2 kB"
+    }
+  ],
   "scripts": {
+    "size": "size-limit",
     "build": "microbundle -i src/index.ts -f esm,amd",
     "dev": "yarn build --watch"
   },
