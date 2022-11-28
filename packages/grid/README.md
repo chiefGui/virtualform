@@ -77,7 +77,10 @@ useGrid({
   The absolute amount of cells to render in the grid. A cell is a single element. A gallery displaying 5000 pictures has a `cells.amount` of `5000`.
 
 - `width`: `number` · _Required_
-  The `width` of the cells. To be completely honest with you, this is an _estimation_ rather than an _exact size_. The reason for an estimation is because of the responsive nature of Virtualform: depending on the screen size, respecting the width passed through this variable, mathematically speaking, is not possible. So in order to achieve pixel perfection, Virtualform will take the `width` only as a reference of what you want your cells to look like, and will do its best to be as close to it as possible.
+  The `width` of the cells. To be completely honest with you, this is an _estimation_ rather than an _exact size_. The reason for an estimation is because of the responsive nature of Virtualform: depending on the screen size, respecting the width passed through this variable, mathematically speaking, is not possible. So in order to achieve pixel perfection, **Virtualform** will take the `width` only as a reference of what you want your cells to look like, and will do its best to be as close to it as possible.
+
+- `height`: `number` · _Required_
+  The `height` of the cells. This is an exact size and won't ever change unless you manually do so. Just in case: the height of the cells are the height of the rows as well. Meaning, whatever the value you set as `height`, expect that to be the height of your rows.
 
 ### `gap`: `number`, Optional
 
