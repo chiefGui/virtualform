@@ -14,6 +14,10 @@
 
 **Virtualform** was designed from the bottom up to be fast. We chose [O(1)](https://en.wikipedia.org/wiki/Time_complexity) algorithms and good caching management over [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) to guarantee lightning fast, consistent performance all around.
 
+#### 🪶 Ultra-lightweight
+
+**Virtualform** aims to be thin and to leave a small footprint. Rest assured: the libraries you are consuming are dependency-free and monitored by [size-limit](https://github.com/ai/size-limit), which imposes a hard limit to the size of the packages of no more than 2 kB. Currently, [@virtualform/grid] weighs a mere 1.16 kB, minified and gzipped.
+
 #### 📐 Responsive out of the box
 
 Code once, works everywhere. Automatically. Yes, that's right: you don't have to worry about different screen sizes at all.

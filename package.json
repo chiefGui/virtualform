@@ -11,12 +11,15 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "publish-packages": "turbo run lint format build && changeset version && changeset publish"
+    "size": "turbo run size",
+    "publish-packages": "turbo run lint format build size && changeset version && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.25.2",
+    "@size-limit/preset-small-lib": "^8.1.0",
     "eslint-config-custom": "*",
     "prettier": "latest",
+    "size-limit": "^8.1.0",
     "turbo": "latest"
   },
   "engines": {
