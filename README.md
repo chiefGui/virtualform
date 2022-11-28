@@ -111,7 +111,7 @@ We put great effort on making the documentation incredible. We expect both begin
 
 As is, it's pretty stable&mdash;we are using it in production.
 
-However, note that its API can change. And I say "can" because there's no plan for it, but if really needed, it'll be changed.
+However, note that its API can change. And I say "can" instead of "should" or "may" because there are no plans for it. If needed though, it'll be changed.
 
 </details>
 
