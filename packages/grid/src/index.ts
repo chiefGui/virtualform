@@ -9,7 +9,6 @@ import {
 
 import { useEventListener } from './use-event-listener'
 
-//test
 export function useGrid(input: IInput) {
   const { cells, gap = 20, gutter = 0, overscan = 0 } = input
 
