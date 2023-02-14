@@ -12,6 +12,8 @@
     "@superstate/core": "^0.1.0",
     "@superstate/react": "^0.1.0",
     "@virtualform/grid": "*",
+    "@virtualform/list": "*",
+    "@virtualform/table": "*",
     "framer-motion": "^7.6.5",
     "next": "13.0.0",
     "react": "^18.2.0",

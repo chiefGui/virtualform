@@ -1,0 +1,59 @@
+{
+  "name": "@virtualform/list",
+  "version": "0.1.0",
+  "main": "dist/list.esm.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/list.esm.js",
+      "require": "./dist/list.cjs.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "size-limit": [
+    {
+      "path": "dist/list.esm.js",
+      "limit": "2 kB"
+    }
+  ],
+  "scripts": {
+    "size": "size-limit",
+    "build": "microbundle -i src/index.ts -f esm",
+    "dev": "yarn build --watch"
+  },
+  "dependencies": {
+    "eslint": "^7.23.0",
+    "eslint-config-next": "13.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-turbo": "latest",
+    "eslint-plugin-react": "7.31.8"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.15.1",
+    "typescript": "^4.8.4"
+  },
+  "homepage": "https://github.com/chiefGui/virtualform",
+  "bugs": {
+    "url": "https://github.com/chiefGui/virtualform/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Guilherme \"chiefGui\" Oderdenge"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "source": "src/index.ts",
+    "main": "dist/list.js"
+  },
+  "keywords": [
+    "virtualization",
+    "react virtualization",
+    "list virtualization",
+    "list"
+  ]
+}
